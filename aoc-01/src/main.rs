@@ -29,5 +29,11 @@ fn read_and_parse(file: File) -> io::Result<Vec<i32>> {
 }
 
 fn calculate_fuel(mass: &i32) -> i32 {
-    (*mass as f64 / 3.0).floor() as i32 - 2
+    let fuel = (*mass as f64 / 3.0).floor() as i32 - 2;
+
+    if fuel < 0 {
+        0
+    } else {
+        fuel
+    }
 }
