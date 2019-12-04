@@ -9,41 +9,56 @@ fn read_and_parse() -> Vec<usize> {
         .collect()
 }
 
-pub fn aoc_02_01() -> usize {
-    let mut state = read_and_parse();
-    let mut opcode_counter = 0;
-    let mut halted = false;
-
-    state[1] = 12;
-    state[2] = 2;
-
-    while !halted {
-        tick(&mut state, &mut opcode_counter, &mut halted);
-    }
-
-    state[0]
+struct Program {
+    memory: Vec<usize>,
+    address: usize,
+    halted: bool,
 }
 
-fn tick(state: &mut Vec<usize>, opcode_counter: &mut usize, halted: &mut bool) {
-    let opcode_position = *opcode_counter * 4;
-    let opcode = state[opcode_position];
-
-    match opcode {
-        1 => {
-            let arg1 = state[state[opcode_position + 1]];
-            let arg2 = state[state[opcode_position + 2]];
-            let put_to = state[opcode_position + 3].clone();
-            state[put_to] = arg1 + arg2;
+impl Program {
+    pub fn new(memory: Vec<usize>) -> Self {
+        Self {
+            memory,
+            address: 0,
+            halted: false,
         }
-        2 => {
-            let arg1 = state[state[opcode_position + 1]];
-            let arg2 = state[state[opcode_position + 2]];
-            let put_to = state[opcode_position + 3].clone();
-            state[put_to] = arg1 * arg2;
-        }
-        99 => *halted = true,
-        _ => unreachable!("Wrong OpCode {}!", opcode),
     }
 
-    *opcode_counter += 1;
+    pub fn run(&mut self, noun: usize, verb: usize) -> usize {
+        self.memory[1] = noun;
+        self.memory[2] = verb;
+
+        while !self.halted {
+            self.tick();
+        }
+
+        self.memory[0]
+    }
+
+    fn tick(&mut self) {
+        let opcode = self.memory[self.address];
+
+        match opcode {
+            1 => {
+                let arg1 = self.memory[self.memory[self.address + 1]];
+                let arg2 = self.memory[self.memory[self.address + 2]];
+                let put_to = self.memory[self.address + 3].clone();
+                self.memory[put_to] = arg1 + arg2;
+            }
+            2 => {
+                let arg1 = self.memory[self.memory[self.address + 1]];
+                let arg2 = self.memory[self.memory[self.address + 2]];
+                let put_to = self.memory[self.address + 3].clone();
+                self.memory[put_to] = arg1 * arg2;
+            }
+            99 => self.halted = true,
+            _ => unreachable!("Wrong OpCode {}!", opcode),
+        }
+
+        self.address += 4;
+    }
+}
+
+pub fn aoc_02_01() -> usize {
+    Program::new(read_and_parse()).run(12, 2)
 }
