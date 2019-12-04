@@ -13,7 +13,7 @@ fn main() {
 fn aoc_01_01() -> io::Result<i32> {
     let nums = read_and_parse(File::open("input-01.txt")?)?;
 
-    let result = nums.iter().map(calculate_single_module).sum();
+    let result = nums.iter().map(calculate_fuel).sum();
     Ok(result)
 }
 
@@ -28,6 +28,6 @@ fn read_and_parse(file: File) -> io::Result<Vec<i32>> {
     Ok(result)
 }
 
-fn calculate_single_module(mass: &i32) -> i32 {
+fn calculate_fuel(mass: &i32) -> i32 {
     (*mass as f64 / 3.0).floor() as i32 - 2
 }
