@@ -4,17 +4,15 @@ use std::{
 };
 
 fn main() {
-    match aoc_01_01() {
+    let nums = File::open("aoc-01/input-01.txt").and_then(read_and_parse);
+    match nums.map(aoc_01_01) {
         Ok(res) => println!("{}", res),
         Err(err) => println!("{}", err),
     }
 }
 
-fn aoc_01_01() -> io::Result<i32> {
-    let nums = read_and_parse(File::open("aoc-01/input-01.txt")?)?;
-
-    let result = nums.iter().map(calculate_fuel).sum();
-    Ok(result)
+fn aoc_01_01(nums: Vec<i32>) -> i32 {
+    nums.iter().map(calculate_fuel).sum()
 }
 
 fn read_and_parse(file: File) -> io::Result<Vec<i32>> {
