@@ -4,7 +4,10 @@ use std::{
 };
 
 fn main() {
-    aoc_01_01().map(|r| println!("{}", r));
+    match aoc_01_01() {
+        Ok(res) => println!("{}", res),
+        Err(err) => println!("{}", err),
+    }
 }
 
 fn aoc_01_01() -> io::Result<i32> {
