@@ -11,7 +11,7 @@ fn main() {
 }
 
 fn aoc_01_01() -> io::Result<i32> {
-    let nums = read_and_parse(File::open("input-01.txt")?)?;
+    let nums = read_and_parse(File::open("aoc-01/input-01.txt")?)?;
 
     let result = nums.iter().map(calculate_fuel).sum();
     Ok(result)
