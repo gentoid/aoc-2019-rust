@@ -62,3 +62,18 @@ impl Program {
 pub fn aoc_02_01() -> usize {
     Program::new(read_and_parse()).run(12, 2)
 }
+
+pub fn aoc_02_02() -> usize {
+    let looking_for = 19690720;
+    let initial_memory = read_and_parse();
+
+    for noun in 0..100 {
+        for verb in 0..100 {
+            if Program::new(initial_memory.clone()).run(noun, verb) == looking_for {
+                return noun * 100 + verb;
+            }
+        }
+    }
+
+    return 0;
+}
