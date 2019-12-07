@@ -8,10 +8,46 @@ struct Diff {
     y: i32,
 }
 
+impl Diff {
+    pub fn from_vector(vector: &str) -> Self {
+        let vector = vector.trim();
+        let distance = i32::from_str_radix(&vector[1..], 10).unwrap();
+        match vector.chars().next().unwrap() {
+            'U' => Self { x: 0, y: distance },
+            'R' => Self { x: distance, y: 0 },
+            'D' => Self { x: 0, y: -distance },
+            'L' => Self { x: -distance, y: 0 },
+            _ => unreachable!(),
+        }
+    }
+
+    pub fn direction(&self) -> Direction {
+        if self.x == 0 {
+            Direction::Vertical
+        } else {
+            Direction::Horizontal
+        }
+    }
+}
+
 #[derive(Clone)]
 struct Point {
     x: i32,
     y: i32,
+}
+
+impl Point {
+    pub fn new(x: i32, y: i32) -> Self {
+        Self { x, y }
+    }
+
+    pub fn with_diff(&self, diff: &Diff) -> Point {
+        Self::new(self.x + diff.x, self.y + diff.y)
+    }
+
+    pub fn manhattan_distance(&self) -> i32 {
+        self.x.abs() + self.y.abs()
+    }
 }
 
 enum Direction {
@@ -25,6 +61,60 @@ struct Segment {
     direction: Direction,
 }
 
+impl Segment {
+    pub fn new(from: &Point, diff: &Diff) -> Self {
+        Self {
+            p1: from.clone(),
+            p2: from.with_diff(diff),
+            direction: diff.direction(),
+        }
+    }
+
+    pub fn is_horizontal(&self) -> bool {
+        use Direction::*;
+
+        match self.direction {
+            Horizontal => true,
+            Vertical => false,
+        }
+    }
+
+    pub fn find_intersection(&self, other: &Self) -> Option<Point> {
+        self.find_intersection_one_way(other)
+            .or(other.find_intersection_one_way(self))
+    }
+
+    pub fn find_intersection_one_way(&self, other: &Self) -> Option<Point> {
+        if self.is_horizontal()
+            && !other.is_horizontal()
+            && self.in_range(&other, Direction::Vertical) // in_range(&self.p1.y, &other.p1.y, &other.p2.y)
+            && other.in_range(&self, Direction::Horizontal)
+        {
+            Some(Point {
+                x: other.p1.x,
+                y: self.p1.y,
+            })
+        } else {
+            None
+        }
+    }
+
+    pub fn in_range(&self, other: &Self, direction: Direction) -> bool {
+        use Direction::*;
+
+        let (what, start, end) = match direction {
+            Vertical => (&self.p1.y, &other.p1.y, &other.p2.y),
+            Horizontal => (&self.p1.x, &other.p1.x, &other.p2.x),
+        };
+
+        if start < end {
+            start < what && what < end
+        } else {
+            end < what && what < start
+        }
+    }
+}
+
 fn read_and_parse() -> Vec<Vec<Diff>> {
     let file = File::open("input-03.txt").unwrap();
     let reader = BufReader::new(file);
@@ -36,46 +126,15 @@ fn read_and_parse() -> Vec<Vec<Diff>> {
 }
 
 fn parse_line(line: String) -> Vec<Diff> {
-    line.split(",").map(parse_vector).collect()
-}
-
-fn parse_vector(vector: &str) -> Diff {
-    let vector = vector.trim();
-    let distance = i32::from_str_radix(&vector[1..], 10).unwrap();
-    match vector.chars().next().unwrap() {
-        'U' => Diff { x: 0, y: distance },
-        'R' => Diff { x: distance, y: 0 },
-        'D' => Diff { x: 0, y: -distance },
-        'L' => Diff { x: -distance, y: 0 },
-        _ => unreachable!(),
-    }
-}
-
-fn calc_next_point(from: &Point, diff: &Diff) -> Point {
-    Point {
-        x: from.x + diff.x,
-        y: from.y + diff.y,
-    }
-}
-
-fn new_segment(from: Point, diff: &Diff) -> Segment {
-    Segment {
-        p1: from.clone(),
-        p2: calc_next_point(&from, diff),
-        direction: if diff.x == 0 {
-            Direction::Vertical
-        } else {
-            Direction::Horizontal
-        },
-    }
+    line.split(",").map(Diff::from_vector).collect()
 }
 
 fn to_segments(diffs: &Vec<Diff>) -> Vec<Segment> {
-    let mut point = Point { x: 0, y: 0 };
+    let mut point = Point::new(0, 0);
     let mut segments = vec![];
 
     for diff in diffs.iter() {
-        let segment = new_segment(point, diff);
+        let segment = Segment::new(&point, diff);
         point = segment.p2.clone();
         segments.push(segment);
     }
@@ -83,55 +142,17 @@ fn to_segments(diffs: &Vec<Diff>) -> Vec<Segment> {
     segments
 }
 
-fn is_horizontal(segment: &Segment) -> bool {
-    use Direction::*;
-
-    match &segment.direction {
-        Horizontal => true,
-        Vertical => false,
-    }
-}
-
-fn in_range(what: &i32, start: &i32, end: &i32) -> bool {
-    if start < end {
-        start < what && what < end
-    } else {
-        end < what && what < start
-    }
-}
-
-fn find_intersection_one_way(segm1: &Segment, segm2: &Segment) -> Option<Point> {
-    if is_horizontal(segm1)
-        && !is_horizontal(segm2)
-        && in_range(&segm1.p1.y, &segm2.p1.y, &segm2.p2.y)
-        && in_range(&segm2.p1.x, &segm1.p1.x, &segm1.p2.x)
-    {
-        Some(Point {
-            x: segm2.p1.x,
-            y: segm1.p1.y,
-        })
-    } else {
-        None
-    }
-}
-
-fn find_intersection(segm1: &Segment, segm2: &Segment) -> Option<Point> {
-    find_intersection_one_way(segm1, segm2).or(find_intersection_one_way(segm1, segm2))
-}
-
-fn manhattan_distance(point: &Point) -> i32 {
-    point.x.abs() + point.y.abs()
-}
-
 pub fn aoc_03_01() -> i32 {
     let data = read_and_parse();
-    let mut intersections: Vec<Point> = vec![];
+    let mut distances: Vec<i32> = vec![];
 
     for segm1 in to_segments(&data[0]) {
         for segm2 in to_segments(&data[1]) {
-            find_intersection(&segm1, &segm2).map(|point| intersections.push(point));
+            segm1
+                .find_intersection(&segm2)
+                .map(|point| distances.push(point.manhattan_distance()));
         }
     }
 
-    intersections.iter().map(manhattan_distance).min().unwrap()
+    *distances.iter().min().unwrap()
 }
