@@ -39,6 +39,10 @@ struct Point {
 }
 
 impl Point {
+    pub fn start_point() -> Self {
+        Self::new(0, 0)
+    }
+
     pub fn new(x: i32, y: i32) -> Self {
         Self { x, y }
     }
@@ -47,8 +51,12 @@ impl Point {
         Self::new(self.x + diff.x, self.y + diff.y)
     }
 
-    pub fn manhattan_distance(&self) -> i32 {
-        self.x.abs() + self.y.abs()
+    pub fn manhattan_distance_to_start(&self) -> i32 {
+        self.manhattan_distance(&Self::start_point())
+    }
+
+    pub fn manhattan_distance(&self, other: &Point) -> i32 {
+        (self.x - other.x).abs() + (self.y - other.y).abs()
     }
 }
 
@@ -129,7 +137,7 @@ fn parse_line(line: String) -> Vec<Diff> {
 }
 
 fn to_segments(diffs: &Vec<Diff>) -> Vec<Segment> {
-    let mut point = Point::new(0, 0);
+    let mut point = Point::start_point();
     let mut segments = vec![];
 
     for diff in diffs.iter() {
@@ -149,7 +157,7 @@ pub fn aoc_03_01() -> i32 {
         for segm2 in to_segments(&data[1]) {
             segm1
                 .find_intersection(&segm2)
-                .map(|point| distances.push(point.manhattan_distance()));
+                .map(|point| distances.push(point.manhattan_distance_to_start()));
         }
     }
 
