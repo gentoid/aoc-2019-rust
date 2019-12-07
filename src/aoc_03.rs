@@ -36,13 +36,13 @@ fn read_and_parse() -> Vec<Vec<Diff>> {
 }
 
 fn parse_line(line: String) -> Vec<Diff> {
-    line.split(",").map(parse_movement).collect()
+    line.split(",").map(parse_vector).collect()
 }
 
-fn parse_movement(movement: &str) -> Diff {
-    let movement = movement.trim();
-    let distance = i32::from_str_radix(&movement[1..], 10).unwrap();
-    match movement.chars().next().unwrap() {
+fn parse_vector(vector: &str) -> Diff {
+    let vector = vector.trim();
+    let distance = i32::from_str_radix(&vector[1..], 10).unwrap();
+    match vector.chars().next().unwrap() {
         'U' => Diff { x: 0, y: distance },
         'R' => Diff { x: distance, y: 0 },
         'D' => Diff { x: 0, y: -distance },
