@@ -12,13 +12,15 @@ impl Diff {
     pub fn from_vector(vector: &str) -> Self {
         let vector = vector.trim();
         let distance = i32::from_str_radix(&vector[1..], 10).unwrap();
-        match vector.chars().next().unwrap() {
-            'U' => Self { x: 0, y: distance },
-            'R' => Self { x: distance, y: 0 },
-            'D' => Self { x: 0, y: -distance },
-            'L' => Self { x: -distance, y: 0 },
+        let (x, y) = match vector.chars().next().unwrap() {
+            'U' => (0, distance),
+            'R' => (distance, 0),
+            'D' => (0, -distance),
+            'L' => (-distance, 0),
             _ => unreachable!(),
-        }
+        };
+
+        Self { x, y }
     }
 
     pub fn direction(&self) -> Direction {
@@ -87,13 +89,10 @@ impl Segment {
     pub fn find_intersection_one_way(&self, other: &Self) -> Option<Point> {
         if self.is_horizontal()
             && !other.is_horizontal()
-            && self.in_range(&other, Direction::Vertical) // in_range(&self.p1.y, &other.p1.y, &other.p2.y)
+            && self.in_range(&other, Direction::Vertical)
             && other.in_range(&self, Direction::Horizontal)
         {
-            Some(Point {
-                x: other.p1.x,
-                y: self.p1.y,
-            })
+            Some(Point::new(other.p1.x, self.p1.y))
         } else {
             None
         }
