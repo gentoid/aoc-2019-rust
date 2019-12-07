@@ -120,6 +120,14 @@ impl Segment {
             end < what && what < start
         }
     }
+
+    pub fn manhattan_distance(&self, point: &Point) -> i32 {
+        self.p1.manhattan_distance(point)
+    }
+
+    pub fn length(&self) -> i32 {
+        self.p1.manhattan_distance(&self.p2)
+    }
 }
 
 fn read_and_parse() -> Vec<Vec<Diff>> {
@@ -162,4 +170,27 @@ pub fn aoc_03_01() -> i32 {
     }
 
     *distances.iter().min().unwrap()
+}
+
+pub fn aoc_03_02() -> i32 {
+    let data = read_and_parse();
+    let mut lengths: Vec<i32> = vec![];
+
+    let mut segm1_length = 0;
+    for segm1 in to_segments(&data[0]) {
+        let mut segm2_length = 0;
+        for segm2 in to_segments(&data[1]) {
+            segm1.find_intersection(&segm2).map(|intersection| {
+                let length = segm1_length
+                    + segm2_length
+                    + segm1.manhattan_distance(&intersection)
+                    + segm2.manhattan_distance(&intersection);
+                lengths.push(length);
+            });
+            segm2_length += segm2.length()
+        }
+        segm1_length += segm1.length()
+    }
+
+    *lengths.iter().min().unwrap()
 }
