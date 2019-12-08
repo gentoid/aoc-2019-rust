@@ -28,22 +28,21 @@ impl Program {
         let opcode = self.memory[self.address];
 
         match opcode {
-            1 => {
-                let arg1 = self.memory[self.memory[self.address + 1]];
-                let arg2 = self.memory[self.memory[self.address + 2]];
-                let put_to = self.memory[self.address + 3].clone();
-                self.memory[put_to] = arg1 + arg2;
+            1 => self.opcode_with_3_args(|a, b| a + b),
+            2 => self.opcode_with_3_args(|a, b| a * b),
+            99 => {
+                self.halted = true;
+                self.address += 1;
             }
-            2 => {
-                let arg1 = self.memory[self.memory[self.address + 1]];
-                let arg2 = self.memory[self.memory[self.address + 2]];
-                let put_to = self.memory[self.address + 3].clone();
-                self.memory[put_to] = arg1 * arg2;
-            }
-            99 => self.halted = true,
             _ => unreachable!("Wrong OpCode {}!", opcode),
         }
+    }
 
+    fn opcode_with_3_args(&mut self, f: fn(usize, usize) -> usize) {
+        let arg1 = self.memory[self.memory[self.address + 1]];
+        let arg2 = self.memory[self.memory[self.address + 2]];
+        let put_to = self.memory[self.address + 3].clone();
+        self.memory[put_to] = f(arg1, arg2);
         self.address += 4;
     }
 }
