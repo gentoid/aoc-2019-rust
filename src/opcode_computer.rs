@@ -203,4 +203,11 @@ mod tests {
         program.run();
         assert_eq!(program.memory, vec![11, 5, 3, 0, 99, 8]);
     }
+
+    #[test]
+    fn sum_negativ_with_modes() {
+        let mut program = Program::new(vec![1101, 100, -1, 4, 0], None);
+        program.run();
+        assert_eq!(program.memory, vec![1101, 100, -1, 4, 99]);
+    }
 }
