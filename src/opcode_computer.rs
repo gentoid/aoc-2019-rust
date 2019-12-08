@@ -196,4 +196,11 @@ mod tests {
         let parsed = Instruction::parse(10001103);
         assert_eq!(parsed, (3, [Immidiate, Immidiate, Positional]));
     }
+
+    #[test]
+    fn sum_opcode_with_modes() {
+        let mut program = Program::new(vec![1001, 5, 3, 0, 99, 8], None);
+        program.run();
+        assert_eq!(program.memory, vec![11, 5, 3, 0, 99, 8]);
+    }
 }
