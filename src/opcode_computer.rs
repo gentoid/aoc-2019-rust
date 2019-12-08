@@ -36,10 +36,18 @@ impl Program {
     }
 
     fn opcode_with_3_args(&mut self, f: fn(usize, usize) -> usize) {
-        let arg1 = self.memory[self.memory[self.instruction_pointer + 1]];
-        let arg2 = self.memory[self.memory[self.instruction_pointer + 2]];
-        let put_to = self.memory[self.instruction_pointer + 3].clone();
-        self.memory[put_to] = f(arg1, arg2);
+        let arg1 = self.get_arg(1);
+        let arg2 = self.get_arg(2);
+        self.set_arg(3, f(arg1, arg2));
         self.instruction_pointer += 4;
+    }
+
+    fn get_arg(&self, offset: usize) -> usize {
+        self.memory[self.memory[self.instruction_pointer + offset]]
+    }
+
+    fn set_arg(&mut self, offset: usize, value: usize) {
+        let put_to = self.memory[self.instruction_pointer + offset].clone();
+        self.memory[put_to] = value;
     }
 }
