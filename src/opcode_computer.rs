@@ -44,6 +44,30 @@ impl Program {
                 self.set_value(&param, input);
             }
             OC04(param) => self.put_output(self.value_for(&param)),
+            OC05(params) => {
+                if self.value_for(&params[0]) != 0 {
+                    self.instruction_pointer = self.value_for(&params[1]) as usize;
+                }
+            }
+            OC06(params) => {
+                if self.value_for(&params[0]) == 0 {
+                    self.instruction_pointer = self.value_for(&params[1]) as usize;
+                }
+            }
+            OC07(params) => {
+                if self.value_for(&params[0]) < self.value_for(&params[1]) {
+                    self.set_value(&params[2], 1)
+                } else {
+                    self.set_value(&params[2], 0)
+                }
+            }
+            OC08(params) => {
+                if self.value_for(&params[0]) == self.value_for(&params[1]) {
+                    self.set_value(&params[2], 1)
+                } else {
+                    self.set_value(&params[2], 0)
+                }
+            }
             OC99 => self.halted = true,
             _ => unimplemented!(),
         }
@@ -113,6 +137,10 @@ enum Instruction {
     OC02([Param; 3]),
     OC03(Param),
     OC04(Param),
+    OC05([Param; 2]),
+    OC06([Param; 2]),
+    OC07([Param; 3]),
+    OC08([Param; 3]),
     OC99,
 }
 
@@ -134,6 +162,22 @@ impl Instruction {
             ]),
             (3, [m, _, _]) => OC03(Param::new(program.get(), m)),
             (4, [m, _, _]) => OC04(Param::new(program.get(), m)),
+            (5, [m1, m2, _]) => {
+                OC05([Param::new(program.get(), m1), Param::new(program.get(), m2)])
+            }
+            (6, [m1, m2, _]) => {
+                OC06([Param::new(program.get(), m1), Param::new(program.get(), m2)])
+            }
+            (7, [m1, m2, m3]) => OC07([
+                Param::new(program.get(), m1),
+                Param::new(program.get(), m2),
+                Param::new(program.get(), m3),
+            ]),
+            (8, [m1, m2, m3]) => OC08([
+                Param::new(program.get(), m1),
+                Param::new(program.get(), m2),
+                Param::new(program.get(), m3),
+            ]),
             (99, _) => OC99,
             _ => unreachable!("Wrong instruction {}!", instruction),
         }
@@ -209,5 +253,33 @@ mod tests {
         let mut program = Program::new(vec![1101, 100, -1, 4, 0], None);
         program.run();
         assert_eq!(program.memory, vec![1101, 100, -1, 4, 99]);
+    }
+
+    #[test]
+    fn position_equal_to() {
+        let mut program = Program::new(vec![3, 9, 8, 9, 10, 9, 4, 9, 99, -1, 8], Some(vec![8]));
+        program.run();
+        assert_eq!(*program.output.last().unwrap(), 1);
+    }
+
+    #[test]
+    fn position_not_equal_to() {
+        let mut program = Program::new(vec![3, 9, 8, 9, 10, 9, 4, 9, 99, -1, 8], Some(vec![7]));
+        program.run();
+        assert_eq!(*program.output.last().unwrap(), 0);
+    }
+
+    #[test]
+    fn immediate_less_than() {
+        let mut program = Program::new(vec![3, 3, 1107, -1, 8, 3, 4, 3, 99], Some(vec![7]));
+        program.run();
+        assert_eq!(*program.output.last().unwrap(), 1);
+    }
+
+    #[test]
+    fn immediate_not_less_than() {
+        let mut program = Program::new(vec![3, 3, 1107, -1, 8, 3, 4, 3, 99], Some(vec![10]));
+        program.run();
+        assert_eq!(*program.output.last().unwrap(), 0);
     }
 }
