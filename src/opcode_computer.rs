@@ -27,43 +27,48 @@ impl Program {
         self.memory[0]
     }
 
-    fn tick(&mut self) {
-        let opcode = self.memory[self.instruction_pointer];
+    fn get(&mut self) -> isize {
+        let result = self.memory[self.instruction_pointer];
+        self.instruction_pointer += 1;
+        result
+    }
 
-        match opcode {
-            1 => self.opcode_with_3_args(|a, b| a + b),
-            2 => self.opcode_with_3_args(|a, b| a * b),
-            3 => {
+    fn tick(&mut self) {
+        use Instruction::*;
+
+        match Instruction::next(self) {
+            OC01(params) => self.opcode_with_3_args(&params, |a, b| a + b),
+            OC02(params) => self.opcode_with_3_args(&params, |a, b| a * b),
+            OC03(param) => {
                 let input = self.take_input();
-                self.set_arg(1, input);
-                self.instruction_pointer += 2;
+                self.set_value(&param, input);
             }
-            4 => {
-                self.put_output(self.get_arg(1));
-                self.instruction_pointer += 2;
-            }
-            99 => {
-                self.halted = true;
-                self.instruction_pointer += 1;
-            }
-            _ => unreachable!("Wrong OpCode {}!", opcode),
+            OC04(param) => self.put_output(self.value_for(&param)),
+            OC99 => self.halted = true,
+            _ => unimplemented!(),
         }
     }
 
-    fn opcode_with_3_args(&mut self, f: fn(isize, isize) -> isize) {
-        let arg1 = self.get_arg(1);
-        let arg2 = self.get_arg(2);
-        self.set_arg(3, f(arg1, arg2));
-        self.instruction_pointer += 4;
+    fn value_for(&self, param: &Param) -> isize {
+        match param.mode {
+            ParamMode::Positional => self.memory[param.value as usize],
+            ParamMode::Immidiate => param.value,
+        }
     }
 
-    fn get_arg(&self, offset: usize) -> isize {
-        self.memory[self.memory[self.instruction_pointer + offset] as usize]
+    fn opcode_with_3_args(&mut self, params: &[Param;3],f: fn(isize, isize) -> isize) {
+        let [p1, p2, p3] = params;
+        let val1 = self.value_for(&p1);
+        let val2 = self.value_for(&p2);
+        self.set_value(&p3, f(val1, val2));
     }
 
-    fn set_arg(&mut self, offset: usize, value: isize) {
-        let put_to = self.memory[self.instruction_pointer + offset].clone() as usize;
-        self.memory[put_to] = value;
+    fn set_value(&mut self, param: &Param, value: isize) {
+        match param.mode {
+            ParamMode::Positional => self.memory[param.value as usize] = value,
+            ParamMode::Immidiate => panic!("It's impossible to use immidiate mode to set value"),
+        }
+        
     }
 
     fn take_input(&mut self) -> isize {
@@ -74,6 +79,64 @@ impl Program {
 
     fn put_output(&mut self, value: isize) {
         self.output.push(value);
+    }
+}
+
+enum ParamMode {
+    Positional,
+    Immidiate,
+}
+
+struct Param {
+    value: isize,
+    mode: ParamMode,
+}
+
+impl Param {
+    pub fn pos(value: isize) -> Self {
+        Self {
+            value,
+            mode: ParamMode::Positional,
+        }
+    }
+
+    pub fn imm(value: isize) -> Self {
+        Self {
+            value,
+            mode: ParamMode::Immidiate,
+        }
+    }
+}
+
+enum Instruction {
+    OC01([Param; 3]),
+    OC02([Param; 3]),
+    OC03(Param),
+    OC04(Param),
+    OC99,
+}
+
+impl Instruction {
+    pub fn next(program: &mut Program) -> Self {
+        use Instruction::*;
+        let instruction = program.get();
+
+        match instruction {
+            1 => OC01([
+                Param::pos(program.get()),
+                Param::pos(program.get()),
+                Param::pos(program.get()),
+            ]),
+            2 => OC02([
+                Param::pos(program.get()),
+                Param::pos(program.get()),
+                Param::pos(program.get()),
+            ]),
+            3 => OC03(Param::pos(program.get())),
+            4 => OC04(Param::pos(program.get())),
+            99 => OC99,
+            _ => unreachable!("Wrong instruction {}!", instruction),
+        }
     }
 }
 
