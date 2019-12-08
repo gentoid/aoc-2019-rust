@@ -16,3 +16,11 @@ pub fn aoc_05_01() -> isize {
 
     *program.output.last().unwrap()
 }
+
+pub fn aoc_05_02() -> isize {
+    let memory = read_and_parse();
+    let mut program = Program::new(memory, Some(vec![5]));
+    program.run();
+
+    *program.output.last().unwrap()
+}
