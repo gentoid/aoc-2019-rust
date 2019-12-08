@@ -10,20 +10,27 @@ fn read_and_parse() -> Vec<usize> {
 }
 
 pub fn aoc_02_01() -> usize {
-    Program::new(read_and_parse()).run_with_noun_verb(12, 2)
+    init_with_noun_verb(12, 2).run()
 }
 
 pub fn aoc_02_02() -> usize {
     let looking_for = 19690720;
-    let initial_memory = read_and_parse();
 
     for noun in 0..100 {
         for verb in 0..100 {
-            if Program::new(initial_memory.clone()).run_with_noun_verb(noun, verb) == looking_for {
+            if init_with_noun_verb(noun, verb).run() == looking_for {
                 return noun * 100 + verb;
             }
         }
     }
 
     return 0;
+}
+
+fn init_with_noun_verb(noun: usize, verb: usize) -> Program {
+    let mut memory = read_and_parse();
+    memory[1] = noun;
+    memory[2] = verb;
+
+    Program::new(memory)
 }

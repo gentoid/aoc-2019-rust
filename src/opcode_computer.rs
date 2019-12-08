@@ -13,10 +13,7 @@ impl Program {
         }
     }
 
-    pub fn run_with_noun_verb(&mut self, noun: usize, verb: usize) -> usize {
-        self.memory[1] = noun;
-        self.memory[2] = verb;
-
+    pub fn run(&mut self) -> usize {
         while !self.halted {
             self.tick();
         }
