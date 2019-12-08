@@ -4,7 +4,7 @@ pub struct Program {
     halted: bool,
     input: Option<Vec<isize>>,
     input_pointer: usize,
-    output: Vec<isize>,
+    pub output: Vec<isize>,
 }
 
 impl Program {
