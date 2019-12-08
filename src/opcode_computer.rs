@@ -1,14 +1,14 @@
 pub struct Program {
-    memory: Vec<usize>,
+    memory: Vec<isize>,
     instruction_pointer: usize,
     halted: bool,
-    input: Option<Vec<usize>>,
+    input: Option<Vec<isize>>,
     input_pointer: usize,
-    output: Vec<usize>,
+    output: Vec<isize>,
 }
 
 impl Program {
-    pub fn new(memory: Vec<usize>, input: Option<Vec<usize>>) -> Self {
+    pub fn new(memory: Vec<isize>, input: Option<Vec<isize>>) -> Self {
         Self {
             memory,
             instruction_pointer: 0,
@@ -19,7 +19,7 @@ impl Program {
         }
     }
 
-    pub fn run(&mut self) -> usize {
+    pub fn run(&mut self) -> isize {
         while !self.halted {
             self.tick();
         }
@@ -50,29 +50,29 @@ impl Program {
         }
     }
 
-    fn opcode_with_3_args(&mut self, f: fn(usize, usize) -> usize) {
+    fn opcode_with_3_args(&mut self, f: fn(isize, isize) -> isize) {
         let arg1 = self.get_arg(1);
         let arg2 = self.get_arg(2);
         self.set_arg(3, f(arg1, arg2));
         self.instruction_pointer += 4;
     }
 
-    fn get_arg(&self, offset: usize) -> usize {
-        self.memory[self.memory[self.instruction_pointer + offset]]
+    fn get_arg(&self, offset: usize) -> isize {
+        self.memory[self.memory[self.instruction_pointer + offset] as usize]
     }
 
-    fn set_arg(&mut self, offset: usize, value: usize) {
-        let put_to = self.memory[self.instruction_pointer + offset].clone();
+    fn set_arg(&mut self, offset: usize, value: isize) {
+        let put_to = self.memory[self.instruction_pointer + offset].clone() as usize;
         self.memory[put_to] = value;
     }
 
-    fn take_input(&mut self) -> usize {
+    fn take_input(&mut self) -> isize {
         let input = self.input.as_ref().unwrap()[self.input_pointer];
         self.input_pointer += 1;
         input
     }
 
-    fn put_output(&mut self, value: usize) {
+    fn put_output(&mut self, value: isize) {
         self.output.push(value);
     }
 }
