@@ -1,5 +1,9 @@
+fn input() -> [i32; 2] {
+    [357253, 892942]
+}
+
 pub fn aoc_04_01() -> i32 {
-    let input = [357253, 892942];
+    let input = input();
     BruteForce::new(input[0], input[1]).run()
 }
 
@@ -34,7 +38,7 @@ impl BruteForce {
 
     fn next(&mut self) {
         let max = self.current.len() - 1;
-        self.current[max]+=1;
+        self.current[max] += 1;
         for position in 0..=max {
             let rev_position = max - position;
             if self.current[rev_position] > 9 {
