@@ -76,3 +76,36 @@ impl Program {
         self.output.push(value);
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn puts_input_to_output() {
+        let mut program = Program::new(vec![3,0,4,0,99], Some(vec![7]));
+        program.run();
+        assert_eq!(program.output, vec![7]);
+    }
+
+    #[test]
+    fn multiplies_and_puts_to_the_latest() {
+        let mut program = Program::new(vec![2,4,4,5,99,0], None);
+        program.run();
+        assert_eq!(program.memory, vec![2,4,4,5,99,9801]);
+    }
+
+    #[test]
+    fn sums_and_puts_to_the_first() {
+        let mut program = Program::new(vec![1,0,0,0,99], None);
+        program.run();
+        assert_eq!(program.memory, vec![2,0,0,0,99]);
+    }
+
+    #[test]
+    fn overrides_99_in_the_middle() {
+        let mut program = Program::new(vec![1,1,1,4,99,5,6,0,99], None);
+        program.run();
+        assert_eq!(program.memory, vec![30,1,1,4,2,5,6,0,99]);
+    }
+}
