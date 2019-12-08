@@ -56,7 +56,7 @@ impl Program {
         }
     }
 
-    fn opcode_with_3_args(&mut self, params: &[Param;3],f: fn(isize, isize) -> isize) {
+    fn opcode_with_3_args(&mut self, params: &[Param; 3], f: fn(isize, isize) -> isize) {
         let [p1, p2, p3] = params;
         let val1 = self.value_for(&p1);
         let val2 = self.value_for(&p2);
@@ -68,7 +68,6 @@ impl Program {
             ParamMode::Positional => self.memory[param.value as usize] = value,
             ParamMode::Immidiate => panic!("It's impossible to use immidiate mode to set value"),
         }
-        
     }
 
     fn take_input(&mut self) -> isize {
@@ -82,9 +81,20 @@ impl Program {
     }
 }
 
+#[derive(Debug, PartialEq)]
 enum ParamMode {
     Positional,
     Immidiate,
+}
+
+impl ParamMode {
+    fn new(value: isize) -> Self {
+        match value {
+            0 => ParamMode::Positional,
+            1 => ParamMode::Immidiate,
+            _ => unreachable!("Incorrect value to init ParamMode: {}", value),
+        }
+    }
 }
 
 struct Param {
@@ -93,18 +103,8 @@ struct Param {
 }
 
 impl Param {
-    pub fn pos(value: isize) -> Self {
-        Self {
-            value,
-            mode: ParamMode::Positional,
-        }
-    }
-
-    pub fn imm(value: isize) -> Self {
-        Self {
-            value,
-            mode: ParamMode::Immidiate,
-        }
+    pub fn new(value: isize, mode: ParamMode) -> Self {
+        Self { value, mode }
     }
 }
 
@@ -121,22 +121,33 @@ impl Instruction {
         use Instruction::*;
         let instruction = program.get();
 
-        match instruction {
-            1 => OC01([
-                Param::pos(program.get()),
-                Param::pos(program.get()),
-                Param::pos(program.get()),
+        match Instruction::parse(instruction) {
+            (1, [m1, m2, m3]) => OC01([
+                Param::new(program.get(), m1),
+                Param::new(program.get(), m2),
+                Param::new(program.get(), m3),
             ]),
-            2 => OC02([
-                Param::pos(program.get()),
-                Param::pos(program.get()),
-                Param::pos(program.get()),
+            (2, [m1, m2, m3]) => OC02([
+                Param::new(program.get(), m1),
+                Param::new(program.get(), m2),
+                Param::new(program.get(), m3),
             ]),
-            3 => OC03(Param::pos(program.get())),
-            4 => OC04(Param::pos(program.get())),
-            99 => OC99,
+            (3, [m, _, _]) => OC03(Param::new(program.get(), m)),
+            (4, [m, _, _]) => OC04(Param::new(program.get(), m)),
+            (99, _) => OC99,
             _ => unreachable!("Wrong instruction {}!", instruction),
         }
+    }
+
+    fn parse(code: isize) -> (isize, [ParamMode; 3]) {
+        (
+            code % 100,
+            [
+                ParamMode::new((code / 100) % 10),
+                ParamMode::new((code / 1000) % 10),
+                ParamMode::new((code / 10000) % 10),
+            ],
+        )
     }
 }
 
@@ -170,5 +181,19 @@ mod tests {
         let mut program = Program::new(vec![1, 1, 1, 4, 99, 5, 6, 0, 99], None);
         program.run();
         assert_eq!(program.memory, vec![30, 1, 1, 4, 2, 5, 6, 0, 99]);
+    }
+
+    #[test]
+    fn parse_code_01() {
+        use ParamMode::*;
+        let parsed = Instruction::parse(102);
+        assert_eq!(parsed, (2, [Immidiate, Positional, Positional]));
+    }
+
+    #[test]
+    fn parse_code_too_long() {
+        use ParamMode::*;
+        let parsed = Instruction::parse(10001103);
+        assert_eq!(parsed, (3, [Immidiate, Immidiate, Positional]));
     }
 }
