@@ -4,7 +4,12 @@ fn input() -> [i32; 2] {
 
 pub fn aoc_04_01() -> i32 {
     let input = input();
-    BruteForce::new(input[0], input[1]).run()
+    BruteForce::new(input[0], input[1]).run_01()
+}
+
+pub fn aoc_04_02() -> i32 {
+    let input = input();
+    BruteForce::new(input[0], input[1]).run_02()
 }
 
 type Tup6 = [i32; 6];
@@ -25,9 +30,20 @@ impl BruteForce {
         }
     }
 
-    pub fn run(&mut self) -> i32 {
+    pub fn run_01(&mut self) -> i32 {
         while self.left_to_check >= 0 {
-            if self.valid() {
+            if self.valid_01() {
+                self.possible_passwords_counter += 1;
+            }
+            self.next();
+        }
+
+        self.possible_passwords_counter
+    }
+
+    pub fn run_02(&mut self) -> i32 {
+        while self.left_to_check >= 0 {
+            if self.valid_02() {
                 self.possible_passwords_counter += 1;
             }
             self.next();
@@ -49,8 +65,12 @@ impl BruteForce {
         self.left_to_check -= 1;
     }
 
-    fn valid(&self) -> bool {
+    fn valid_01(&self) -> bool {
         self.digits_not_decrease() && self.has_two_adjacent_digits()
+    }
+
+    fn valid_02(&self) -> bool {
+        self.digits_not_decrease() && self.has_only_two_adjacent_digits()
     }
 
     fn digits_not_decrease(&self) -> bool {
@@ -65,6 +85,20 @@ impl BruteForce {
     fn has_two_adjacent_digits(&self) -> bool {
         for position in 0..(self.current.len() - 1) {
             if self.current[position] == self.current[position + 1] {
+                return true;
+            }
+        }
+        false
+    }
+
+    fn has_only_two_adjacent_digits(&self) -> bool {
+        let min = 0;
+        let max = self.current.len() - 2;
+        for i in min..=max {
+            if (i == min || self.current[i - 1] != self.current[i])
+                && self.current[i] == self.current[i + 1]
+                && (i == max || self.current[i + 2] != self.current[i])
+            {
                 return true;
             }
         }
