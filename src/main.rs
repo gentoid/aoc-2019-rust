@@ -2,6 +2,7 @@ mod aoc_01;
 mod aoc_02;
 mod aoc_03;
 mod aoc_04;
+mod opcode_computer;
 
 fn main() {
     println!("01 / 01: {}", aoc_01::aoc_01_01());
