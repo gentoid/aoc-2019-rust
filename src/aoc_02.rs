@@ -32,5 +32,5 @@ fn init_with_noun_verb(noun: usize, verb: usize) -> Program {
     memory[1] = noun;
     memory[2] = verb;
 
-    Program::new(memory)
+    Program::new(memory, None)
 }
