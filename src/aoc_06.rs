@@ -20,24 +20,22 @@ pub fn aoc_06_01() -> u32 {
         orbit_counter.insert(name1, 0);
         orbit_counter.insert(name2, 0);
     }
-    let sequence = down_to_the_root(&relations[0].1, &relations);
-    println!(
-        "Started with {}, ended up with {:?}",
-        &relations[0].1, sequence
-    );
-    0 // just to make the compiler happy
+
+    let mut total: u32 = 0;
+    // TODO: reimplement it by caching imntermediate results - use orbit_counter
+    for relation in relations.iter() {
+        total += down_to_the_root(&relation.1, &relations)
+    }
+    total
 }
 fn parse(relation: &str) -> (String, String) {
     let names: Vec<&str> = relation.split(")").collect();
     (names[0].to_owned(), names[1].to_owned())
 }
 
-fn down_to_the_root(start: &str, relations: &Vec<(String, String)>) -> Vec<String> {
-    let mut result = vec![start.to_owned()];
-    relations.iter().find(|(_, n)| n == start).map(|r| {
-        let mut next = down_to_the_root(&r.0, relations);
-        result.append(&mut next);
-    });
-
-    result
+fn down_to_the_root(start: &str, relations: &Vec<(String, String)>) -> u32 {
+    match relations.iter().find(|(_, n)| n == start) {
+        None => 0,
+        Some(r) => 1 + down_to_the_root(&r.0, relations),
+    }
 }
