@@ -40,7 +40,7 @@ fn calculate_total_fuel(mass: &i32) -> i32 {
     loop {
         let fuel = calculate_fuel(&mass);
         if fuel == 0 {
-            break
+            break;
         }
 
         total_fuel += fuel;
