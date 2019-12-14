@@ -62,7 +62,40 @@ fn down_to_the_root(
                 }
                 result.push(start.into());
                 result
+            }
+        }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn finds_sun_of_a_single_relation() {
+        let relations = vec![("sun".into(), "planet".into())];
+        let res = down_to_the_root("planet", &relations, &HashMap::new());
+        assert_eq!(vec!["sun", "planet"], res);
+    }
+
+    #[test]
+    fn finds_sun_for_two_relations() {
+        let relations = vec![
+            ("sun".into(), "planet1".into()), 
+            ("planet1".into(), "planet2".into()),
+            ];
+        let res = down_to_the_root("planet2", &relations, &HashMap::new());
+        assert_eq!(vec!["sun", "planet1", "planet2"], res);
+    }
+
+    #[test]
+    fn finds_path_to_sun_for_randomly_placed_relations() {
+        let relations = vec![
+            ("planet2".into(), "planet3".into()),
+            ("sun".into(), "planet1".into()), 
+            ("planet1".into(), "planet2".into()),
+            ];
+        let res = down_to_the_root("planet3", &relations, &HashMap::new());
+        assert_eq!(vec!["sun", "planet1", "planet2", "planet3"], res);
     }
 }
