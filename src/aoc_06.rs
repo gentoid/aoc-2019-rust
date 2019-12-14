@@ -13,19 +13,31 @@ fn read_lines() -> Vec<String> {
 
 pub fn aoc_06_01() -> u32 {
     let mut relations: Vec<(String, String)> = vec![];
-    let mut orbit_counter: HashMap<String, u32> = HashMap::new();
+    let mut cache: HashMap<String, Vec<String>> = HashMap::new();
     for relation in read_lines() {
         let (name1, name2) = parse(&relation);
         relations.push((name1.clone(), name2.clone()));
-        orbit_counter.insert(name1, 0);
-        orbit_counter.insert(name2, 0);
+    }
+
+    for relation in relations.iter() {
+        let mut path_to_sun = down_to_the_root(&relation.1, &relations, &cache);
+        let mut prev: Vec<String> = match cache.get(&path_to_sun.pop().unwrap()) {
+            None => vec![],
+            Some(prev) => prev.clone(),
+        };
+        path_to_sun.reverse();
+        for orbit in path_to_sun {
+            cache.insert(orbit.clone(), prev.clone());
+            prev.insert(0, orbit);
+        }
     }
 
     let mut total: u32 = 0;
-    // TODO: reimplement it by caching imntermediate results - use orbit_counter
-    for relation in relations.iter() {
-        total += down_to_the_root(&relation.1, &relations)
+
+    for (_, value) in cache {
+        total += value.len() as u32;
     }
+
     total
 }
 fn parse(relation: &str) -> (String, String) {
@@ -33,9 +45,24 @@ fn parse(relation: &str) -> (String, String) {
     (names[0].to_owned(), names[1].to_owned())
 }
 
-fn down_to_the_root(start: &str, relations: &Vec<(String, String)>) -> u32 {
-    match relations.iter().find(|(_, n)| n == start) {
-        None => 0,
-        Some(r) => 1 + down_to_the_root(&r.0, relations),
+fn down_to_the_root(
+    start: &str,
+    relations: &Vec<(String, String)>,
+    cache: &HashMap<String, Vec<String>>,
+) -> Vec<String> {
+    match relations.iter().find(|(_, planet)| planet == start) {
+        None => vec![],
+        Some((sun, planet)) => {
+            if cache.contains_key(planet) {
+                vec![planet.into()]
+            } else {
+                let mut result = down_to_the_root(sun, relations, cache);
+                if result.is_empty() {
+                    result = vec![sun.into()];
+                }
+                result.push(start.into());
+                result
+    }
+}
     }
 }
