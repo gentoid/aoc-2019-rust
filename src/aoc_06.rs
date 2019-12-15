@@ -20,7 +20,7 @@ pub fn aoc_06_01() -> u32 {
     }
 
     for relation in relations.iter() {
-        let mut path_to_sun = down_to_the_root(&relation.1, &relations, &cache);
+        let mut path_to_sun = solve_path(&relation.1, &relations, &cache);
         let mut prev: Vec<String> = match cache.get(&path_to_sun.pop().unwrap()) {
             None => vec![],
             Some(prev) => prev.clone(),
@@ -45,7 +45,7 @@ fn parse(relation: &str) -> (String, String) {
     (names[0].to_owned(), names[1].to_owned())
 }
 
-fn down_to_the_root(
+fn solve_path(
     find_for: &str,
     relations: &Vec<(String, String)>,
     cache: &HashMap<String, Vec<String>>,
@@ -59,7 +59,7 @@ fn down_to_the_root(
         None => match relations.iter().find(|(_, planet)| planet == find_for) {
             None => vec![find_for.into()],
             Some((sun, planet)) => {
-                let mut path = down_to_the_root(sun, relations, cache);
+                let mut path = solve_path(sun, relations, cache);
                 path.push(planet.into());
                 path
             }
@@ -74,7 +74,7 @@ mod tests {
     #[test]
     fn finds_sun_of_a_single_relation() {
         let relations = vec![("sun".into(), "planet".into())];
-        let res = down_to_the_root("planet", &relations, &HashMap::new());
+        let res = solve_path("planet", &relations, &HashMap::new());
         assert_eq!(vec!["sun", "planet"], res);
     }
 
@@ -84,7 +84,7 @@ mod tests {
             ("sun".into(), "planet1".into()),
             ("planet1".into(), "planet2".into()),
         ];
-        let res = down_to_the_root("planet2", &relations, &HashMap::new());
+        let res = solve_path("planet2", &relations, &HashMap::new());
         assert_eq!(vec!["sun", "planet1", "planet2"], res);
     }
 
@@ -95,7 +95,7 @@ mod tests {
             ("sun".into(), "planet1".into()),
             ("planet1".into(), "planet2".into()),
         ];
-        let res = down_to_the_root("planet3", &relations, &HashMap::new());
+        let res = solve_path("planet3", &relations, &HashMap::new());
         assert_eq!(vec!["sun", "planet1", "planet2", "planet3"], res);
     }
 
@@ -113,7 +113,7 @@ mod tests {
             ("planet2".into(), "planet3".into()),
             ("planet1".into(), "planet2".into()),
         ];
-        let path = down_to_the_root("planet3", &relations, &cache);
+        let path = solve_path("planet3", &relations, &cache);
         assert_eq!(
             path,
             vec!["other_sun", "other_planet1", "planet2", "planet3"]
