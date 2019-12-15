@@ -19,18 +19,18 @@ pub fn aoc_06_01() -> u32 {
         relations.push((name1.clone(), name2.clone()));
     }
 
-    for relation in relations.iter() {
-        let mut path_to_sun = solve_path(&relation.1, &relations, &cache);
-        let mut prev: Vec<String> = match cache.get(&path_to_sun.pop().unwrap()) {
-            None => vec![],
-            Some(prev) => prev.clone(),
-        };
-        path_to_sun.reverse();
-        for orbit in path_to_sun {
-            cache.insert(orbit.clone(), prev.clone());
-            prev.insert(0, orbit);
-        }
-    }
+    // for relation in relations.iter() {
+    //     let (mut path_to_sun, cached) = solve_path(&relation.1, &relations, &cache);
+    //     let mut prev: Vec<String> = match cache.get(&path_to_sun.pop().unwrap()) {
+    //         None => vec![],
+    //         Some(prev) => prev.clone(),
+    //     };
+    //     path_to_sun.reverse();
+    //     for orbit in path_to_sun {
+    //         cache.insert(orbit.clone(), prev.clone());
+    //         prev.insert(0, orbit);
+    //     }
+    // }
 
     let mut total: u32 = 0;
 
