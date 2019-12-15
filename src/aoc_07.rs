@@ -1,7 +1,19 @@
-use crate::opcode_computer::Program;
+use {crate::opcode_computer::Program, std::fs};
 
-pub fn aoc_07_01() -> u32 {
-    0
+fn read_and_parse() -> Vec<isize> {
+    let content = fs::read_to_string("input-07.txt").unwrap();
+    content
+        .trim()
+        .split(",")
+        .map(|string| isize::from_str_radix(string.as_ref(), 10).unwrap())
+        .collect()
+}
+
+pub fn aoc_07_01() -> isize {
+    let program = read_and_parse();
+    let (signal, _) = find_max_signal(&program);
+
+    signal
 }
 pub fn aoc_07_02() -> u32 {
     0
