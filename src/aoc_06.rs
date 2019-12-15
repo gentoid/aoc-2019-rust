@@ -46,24 +46,24 @@ fn parse(relation: &str) -> (String, String) {
 }
 
 fn down_to_the_root(
-    start: &str,
+    find_for: &str,
     relations: &Vec<(String, String)>,
     cache: &HashMap<String, Vec<String>>,
 ) -> Vec<String> {
-    match relations.iter().find(|(_, planet)| planet == start) {
-        None => vec![],
-        Some((sun, planet)) => {
-            if cache.contains_key(planet) {
-                vec![planet.into()]
-            } else {
-                let mut result = down_to_the_root(sun, relations, cache);
-                if result.is_empty() {
-                    result = vec![sun.into()];
-                }
-                result.push(start.into());
-                result
-            }
+    match cache.get::<String>(&find_for.into()) {
+        Some(path) => {
+            let mut path = path.clone();
+            path.push(find_for.into());
+            path
         }
+        None => match relations.iter().find(|(_, planet)| planet == find_for) {
+            None => vec![find_for.into()],
+            Some((sun, planet)) => {
+                let mut path = down_to_the_root(sun, relations, cache);
+                path.push(planet.into());
+                path
+            }
+        },
     }
 }
 
@@ -81,9 +81,9 @@ mod tests {
     #[test]
     fn finds_sun_for_two_relations() {
         let relations = vec![
-            ("sun".into(), "planet1".into()), 
+            ("sun".into(), "planet1".into()),
             ("planet1".into(), "planet2".into()),
-            ];
+        ];
         let res = down_to_the_root("planet2", &relations, &HashMap::new());
         assert_eq!(vec!["sun", "planet1", "planet2"], res);
     }
@@ -92,10 +92,31 @@ mod tests {
     fn finds_path_to_sun_for_randomly_placed_relations() {
         let relations = vec![
             ("planet2".into(), "planet3".into()),
-            ("sun".into(), "planet1".into()), 
+            ("sun".into(), "planet1".into()),
             ("planet1".into(), "planet2".into()),
-            ];
+        ];
         let res = down_to_the_root("planet3", &relations, &HashMap::new());
         assert_eq!(vec!["sun", "planet1", "planet2", "planet3"], res);
+    }
+
+    #[test]
+    fn path_solver_gets_value_from_cache() {
+        let mut cache: HashMap<String, Vec<String>> = HashMap::new();
+        cache.insert("sun".into(), vec![]);
+        cache.insert("other_planet1".into(), vec!["sun".into()]);
+        cache.insert(
+            "planet2".into(),
+            vec!["other_sun".into(), "other_planet1".into()],
+        );
+        let relations = vec![
+            ("sun".into(), "planet1".into()),
+            ("planet2".into(), "planet3".into()),
+            ("planet1".into(), "planet2".into()),
+        ];
+        let path = down_to_the_root("planet3", &relations, &cache);
+        assert_eq!(
+            path,
+            vec!["other_sun", "other_planet1", "planet2", "planet3"]
+        );
     }
 }
