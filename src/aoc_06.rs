@@ -13,7 +13,7 @@ fn read_lines() -> Vec<String> {
 
 pub fn aoc_06_01() -> u32 {
     let mut relations: Vec<(String, String)> = vec![];
-    let mut cache: HashMap<String, Vec<String>> = HashMap::new();
+    let mut cache: HashMap<String, (u32, Option<String>)> = HashMap::new();
     for relation in read_lines() {
         let (name1, name2) = parse(&relation);
         relations.push((name1.clone(), name2.clone()));
@@ -35,7 +35,7 @@ pub fn aoc_06_01() -> u32 {
     let mut total: u32 = 0;
 
     for (_, value) in cache {
-        total += value.len() as u32;
+        total += value.0 as u32;
     }
 
     total
@@ -48,20 +48,16 @@ fn parse(relation: &str) -> (String, String) {
 fn solve_path(
     find_for: &str,
     relations: &Vec<(String, String)>,
-    cache: &HashMap<String, Vec<String>>,
-) -> Vec<String> {
+    cache: &HashMap<String, (u32, Option<String>)>,
+) -> (Vec<String>, (u32, Option<String>)) {
     match cache.get::<String>(&find_for.into()) {
-        Some(path) => {
-            let mut path = path.clone();
-            path.push(find_for.into());
-            path
-        }
+        Some(cached) => (vec![find_for.into()], cached.clone()),
         None => match relations.iter().find(|(_, planet)| planet == find_for) {
-            None => vec![find_for.into()],
+            None => (vec![find_for.into()], (0, None)),
             Some((sun, planet)) => {
-                let mut path = solve_path(sun, relations, cache);
+                let (mut path, cached) = solve_path(sun, relations, cache);
                 path.push(planet.into());
-                path
+                (path, cached)
             }
         },
     }
@@ -75,7 +71,7 @@ mod tests {
     fn finds_sun_of_a_single_relation() {
         let relations = vec![("sun".into(), "planet".into())];
         let res = solve_path("planet", &relations, &HashMap::new());
-        assert_eq!(vec!["sun", "planet"], res);
+        assert_eq!(vec!["sun", "planet"], res.0);
     }
 
     #[test]
@@ -85,7 +81,7 @@ mod tests {
             ("planet1".into(), "planet2".into()),
         ];
         let res = solve_path("planet2", &relations, &HashMap::new());
-        assert_eq!(vec!["sun", "planet1", "planet2"], res);
+        assert_eq!(vec!["sun", "planet1", "planet2"], res.0);
     }
 
     #[test]
@@ -96,18 +92,15 @@ mod tests {
             ("planet1".into(), "planet2".into()),
         ];
         let res = solve_path("planet3", &relations, &HashMap::new());
-        assert_eq!(vec!["sun", "planet1", "planet2", "planet3"], res);
+        assert_eq!(vec!["sun", "planet1", "planet2", "planet3"], res.0);
     }
 
     #[test]
     fn path_solver_gets_value_from_cache() {
-        let mut cache: HashMap<String, Vec<String>> = HashMap::new();
-        cache.insert("sun".into(), vec![]);
-        cache.insert("other_planet1".into(), vec!["sun".into()]);
-        cache.insert(
-            "planet2".into(),
-            vec!["other_sun".into(), "other_planet1".into()],
-        );
+        let mut cache: HashMap<String, (u32, Option<String>)> = HashMap::new();
+        cache.insert("sun".into(), (0, None));
+        cache.insert("other_planet1".into(), (1, Some("sun".into())));
+        cache.insert("planet2".into(), (2, Some("other_planet1".into())));
         let relations = vec![
             ("sun".into(), "planet1".into()),
             ("planet2".into(), "planet3".into()),
@@ -115,8 +108,11 @@ mod tests {
         ];
         let path = solve_path("planet3", &relations, &cache);
         assert_eq!(
-            path,
-            vec!["other_sun", "other_planet1", "planet2", "planet3"]
+            (
+                vec!["planet2".into(), "planet3".into()],
+                (2, Some("other_planet1".into()))
+            ),
+            path
         );
     }
 }
