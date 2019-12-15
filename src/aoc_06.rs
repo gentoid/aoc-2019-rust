@@ -110,6 +110,29 @@ mod tests {
     }
 
     #[test]
+    fn with_empty_cache_returns_none_as_cached() {
+        let cache: HashMap<String, (u32, Option<String>)> = HashMap::new();
+        let relations = vec![
+            ("sun".into(), "planet1".into()),
+            ("planet2".into(), "planet3".into()),
+            ("planet1".into(), "planet2".into()),
+        ];
+        let path = solve_path("planet3", &relations, &cache);
+        assert_eq!(
+            (
+                vec![
+                    "sun".into(),
+                    "planet1".into(),
+                    "planet2".into(),
+                    "planet3".into()
+                ],
+                (0, None)
+            ),
+            path
+        );
+    }
+
+    #[test]
     fn path_solver_gets_value_from_cache() {
         let mut cache: HashMap<String, (u32, Option<String>)> = HashMap::new();
         cache.insert("sun".into(), (0, None));
@@ -155,7 +178,12 @@ mod tests {
     fn adds_data_to_empty_cache() {
         let mut cache: HashMap<String, (u32, Option<String>)> = HashMap::new();
         let path = (
-            vec!["sun".into(), "planet1".into(), "planet2".into(), "planet3".into()],
+            vec![
+                "sun".into(),
+                "planet1".into(),
+                "planet2".into(),
+                "planet3".into(),
+            ],
             (0, None),
         );
 
