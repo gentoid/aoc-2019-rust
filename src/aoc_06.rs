@@ -19,18 +19,10 @@ pub fn aoc_06_01() -> u32 {
         relations.push((name1.clone(), name2.clone()));
     }
 
-    // for relation in relations.iter() {
-    //     let (mut path_to_sun, cached) = solve_path(&relation.1, &relations, &cache);
-    //     let mut prev: Vec<String> = match cache.get(&path_to_sun.pop().unwrap()) {
-    //         None => vec![],
-    //         Some(prev) => prev.clone(),
-    //     };
-    //     path_to_sun.reverse();
-    //     for orbit in path_to_sun {
-    //         cache.insert(orbit.clone(), prev.clone());
-    //         prev.insert(0, orbit);
-    //     }
-    // }
+    for relation in relations.iter() {
+        let path = solve_path(&relation.1, &relations, &cache);
+        update_cache(&path, &mut cache);
+    }
 
     let mut total: u32 = 0;
 
@@ -60,6 +52,28 @@ fn solve_path(
                 (path, cached)
             }
         },
+    }
+}
+
+fn update_cache(
+    (path, cached): &(Vec<String>, (u32, Option<String>)),
+    cache: &mut HashMap<String, (u32, Option<String>)>,
+) {
+    if path.is_empty() {
+        return;
+    }
+    let mut path = path.clone();
+    let mut cached = cached.clone();
+    let mut prev = path.remove(0);
+
+    if cached.1.is_none() {
+        cache.insert(prev.clone(), (0, None));
+    }
+
+    for next in path {
+        cached = (cached.0 + 1, Some(prev));
+        prev = next.clone();
+        cache.insert(next, cached.clone());
     }
 }
 
@@ -114,5 +128,44 @@ mod tests {
             ),
             path
         );
+    }
+
+    #[test]
+    fn updates_cache_with_new_path() {
+        let mut cache = HashMap::new();
+        cache.insert("sun".into(), (0, None));
+        cache.insert("planet1".into(), (1, Some("sun".into())));
+        cache.insert("planet2".into(), (2, Some("planet1".into())));
+        let path = (
+            vec!["planet2".into(), "planet3".into()],
+            (2, Some("planet1".into())),
+        );
+
+        update_cache(&path, &mut cache);
+
+        let mut correct_cache: HashMap<String, (u32, Option<String>)> = HashMap::new();
+        correct_cache.insert("sun".into(), (0, None));
+        correct_cache.insert("planet1".into(), (1, Some("sun".into())));
+        correct_cache.insert("planet2".into(), (2, Some("planet1".into())));
+        correct_cache.insert("planet3".into(), (3, Some("planet2".into())));
+        assert_eq!(correct_cache, cache);
+    }
+
+    #[test]
+    fn adds_data_to_empty_cache() {
+        let mut cache: HashMap<String, (u32, Option<String>)> = HashMap::new();
+        let path = (
+            vec!["sun".into(), "planet1".into(), "planet2".into(), "planet3".into()],
+            (0, None),
+        );
+
+        update_cache(&path, &mut cache);
+
+        let mut correct_cache: HashMap<String, (u32, Option<String>)> = HashMap::new();
+        correct_cache.insert("sun".into(), (0, None));
+        correct_cache.insert("planet1".into(), (1, Some("sun".into())));
+        correct_cache.insert("planet2".into(), (2, Some("planet1".into())));
+        correct_cache.insert("planet3".into(), (3, Some("planet2".into())));
+        assert_eq!(correct_cache, cache);
     }
 }
