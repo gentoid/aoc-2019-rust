@@ -4,6 +4,8 @@ use std::{
     io::{BufRead, BufReader},
 };
 
+type Cache = HashMap<String, (u32, Option<String>)>;
+
 fn read_lines() -> Vec<String> {
     let file = File::open("input-06.txt").unwrap();
     let reader = BufReader::new(file);
@@ -12,6 +14,33 @@ fn read_lines() -> Vec<String> {
 }
 
 pub fn aoc_06_01() -> u32 {
+    let cache = prepare_tree_cache();
+
+    let mut total: u32 = 0;
+    for (_, value) in cache {
+        total += value.0 as u32;
+    }
+
+    total
+}
+
+pub fn aoc_06_02() -> u32 {
+    let cache = prepare_tree_cache();
+    let mut you = get_path("YOU", &cache).unwrap();
+    let mut san = get_path("SAN", &cache).unwrap();
+
+    loop {
+        if you[0] == san[0] {
+            you.remove(0);
+            san.remove(0);
+        } else {
+            break;
+        }
+    }
+    (you.len() + san.len()) as u32 - 2
+}
+
+fn prepare_tree_cache() -> HashMap<String, (u32, Option<String>)> {
     let mut relations: Vec<(String, String)> = vec![];
     let mut cache: HashMap<String, (u32, Option<String>)> = HashMap::new();
     for relation in read_lines() {
@@ -24,14 +53,9 @@ pub fn aoc_06_01() -> u32 {
         update_cache(&path, &mut cache);
     }
 
-    let mut total: u32 = 0;
-
-    for (_, value) in cache {
-        total += value.0 as u32;
-    }
-
-    total
+    cache
 }
+
 fn parse(relation: &str) -> (String, String) {
     let names: Vec<&str> = relation.split(")").collect();
     (names[0].to_owned(), names[1].to_owned())
@@ -74,6 +98,20 @@ fn update_cache(
         cached = (cached.0 + 1, Some(prev));
         prev = next.clone();
         cache.insert(next, cached.clone());
+    }
+}
+
+fn get_path(planet: &str, cache: &Cache) -> Option<Vec<String>> {
+    match cache.get(planet) {
+        None => None,
+        Some((_, next)) => match next {
+            None => Some(vec![planet.into()]),
+            Some(next) => get_path(next, cache).map(|path| {
+                let mut path = path.clone();
+                path.push(planet.into());
+                path
+            })
+        }
     }
 }
 
@@ -195,5 +233,16 @@ mod tests {
         correct_cache.insert("planet2".into(), (2, Some("planet1".into())));
         correct_cache.insert("planet3".into(), (3, Some("planet2".into())));
         assert_eq!(correct_cache, cache);
+    }
+
+    #[test]
+    fn gets_path_from_cache() {
+        let mut cache = HashMap::new();
+        cache.insert("sun".into(), (0, None));
+        cache.insert("planet1".into(), (1, Some("sun".into())));
+        cache.insert("planet2".into(), (2, Some("planet1".into())));
+
+        let path = get_path("planet2", &cache);
+        assert_eq!(Some(vec!["sun".into(), "planet1".into(), "planet2".into()]), path);
     }
 }
