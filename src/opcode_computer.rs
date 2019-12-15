@@ -1,3 +1,4 @@
+#[derive(Debug)]
 pub struct Program {
     memory: Vec<isize>,
     instruction_pointer: usize,
