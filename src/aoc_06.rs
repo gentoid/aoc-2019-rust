@@ -110,8 +110,8 @@ fn get_path(planet: &str, cache: &Cache) -> Option<Vec<String>> {
                 let mut path = path.clone();
                 path.push(planet.into());
                 path
-            })
-        }
+            }),
+        },
     }
 }
 
@@ -243,6 +243,9 @@ mod tests {
         cache.insert("planet2".into(), (2, Some("planet1".into())));
 
         let path = get_path("planet2", &cache);
-        assert_eq!(Some(vec!["sun".into(), "planet1".into(), "planet2".into()]), path);
+        assert_eq!(
+            Some(vec!["sun".into(), "planet1".into(), "planet2".into()]),
+            path
+        );
     }
 }
