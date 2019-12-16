@@ -14,7 +14,7 @@ pub fn aoc_05_01() -> isize {
     let mut program = OpcodeComputer::new(memory);
     program.add_input(&1).run();
 
-    *program.output.last().unwrap()
+    program.get_output().unwrap()
 }
 
 pub fn aoc_05_02() -> isize {
@@ -22,5 +22,5 @@ pub fn aoc_05_02() -> isize {
     let mut program = OpcodeComputer::new(memory);
     program.add_input(&5).run();
 
-    *program.output.last().unwrap()
+    program.get_output().unwrap()
 }

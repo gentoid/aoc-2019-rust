@@ -31,6 +31,13 @@ impl OpcodeComputer {
         self
     }
 
+    pub fn get_output(&mut self) -> Option<isize> {
+        match self.output.is_empty() {
+            true => None,
+            false => Some(self.output.remove(0)),
+        }
+    }
+
     pub fn run(&mut self) -> isize {
         self.state = ComputerState::Running;
 
@@ -63,8 +70,6 @@ impl OpcodeComputer {
             OC01(params) => self.opcode_with_3_args(&params, |a, b| a + b),
             OC02(params) => self.opcode_with_3_args(&params, |a, b| a * b),
             OC03(param) => self.take_input(&param),
-            // self.set_value(&param, input);
-            // }
             OC04(param) => self.put_output(self.value_for(&param)),
             OC05(params) => {
                 if self.value_for(&params[0]) != 0 {
@@ -229,7 +234,7 @@ mod tests {
     fn puts_input_to_output() {
         let mut program = OpcodeComputer::new(vec![3, 0, 4, 0, 99]);
         program.add_input(&7).run();
-        assert_eq!(program.output, vec![7]);
+        assert_eq!(program.get_output(), Some(7));
     }
 
     #[test]
@@ -285,27 +290,27 @@ mod tests {
     fn position_equal_to() {
         let mut program = OpcodeComputer::new(vec![3, 9, 8, 9, 10, 9, 4, 9, 99, -1, 8]);
         program.add_input(&8).run();
-        assert_eq!(*program.output.last().unwrap(), 1);
+        assert_eq!(program.get_output(), Some(1));
     }
 
     #[test]
     fn position_not_equal_to() {
         let mut program = OpcodeComputer::new(vec![3, 9, 8, 9, 10, 9, 4, 9, 99, -1, 8]);
         program.add_input(&7).run();
-        assert_eq!(*program.output.last().unwrap(), 0);
+        assert_eq!(program.get_output(), Some(0));
     }
 
     #[test]
     fn immediate_less_than() {
         let mut program = OpcodeComputer::new(vec![3, 3, 1107, -1, 8, 3, 4, 3, 99]);
         program.add_input(&7).run();
-        assert_eq!(*program.output.last().unwrap(), 1);
+        assert_eq!(program.get_output(), Some(1));
     }
 
     #[test]
     fn immediate_not_less_than() {
         let mut program = OpcodeComputer::new(vec![3, 3, 1107, -1, 8, 3, 4, 3, 99]);
         program.add_input(&10).run();
-        assert_eq!(*program.output.last().unwrap(), 0);
+        assert_eq!(program.get_output(), Some(0));
     }
 }
