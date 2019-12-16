@@ -141,6 +141,31 @@ fn amplifier(phase_settings: &Vec<isize>, program: &Vec<isize>) -> isize {
     input
 }
 
+fn looped_amplifier(phase_settings: &Vec<isize>, program: &Vec<isize>) -> isize {
+    let mut comps = vec![];
+
+    // Setup
+    for phase in phase_settings {
+        let mut comp = OpcodeComputer::new(program.clone());
+        comp.add_input(&phase);
+        comps.push(comp);
+    }
+
+    // Run comps
+    let mut index: usize = 0;
+    let mut input: isize = 0;
+    while !comps.iter().all(|comp| comp.halted()) {
+        if index >= phase_settings.len() {
+            index = 0;
+        }
+        comps[index].add_input(&input).run();
+        input = comps[index].get_output().expect(&format!("There's no output for: {:?}", comps[index]));
+        index += 1;
+    }
+
+   input
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -219,5 +244,18 @@ mod tests {
 
         let found = find_max_signal(&program);
         assert_eq!(found, (max_signal, phase_settings));
+    }
+
+    #[test]
+    fn looped_amp_runs_first_example_program() {
+        let phase_settings = vec![9, 8, 7, 6, 5];
+        let program = vec![
+            3, 26, 1001, 26, -4, 26, 3, 27, 1002, 27, 2, 27, 1, 27, 26, 27, 4, 27, 1001, 28, -1,
+            28, 1005, 28, 6, 99, 0, 0, 5,
+        ];
+        let max_signal = 139629729;
+
+        let signal = looped_amplifier(&phase_settings, &program);
+        assert_eq!(signal, max_signal);
     }
 }

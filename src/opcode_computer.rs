@@ -7,7 +7,7 @@ pub struct OpcodeComputer {
     pub output: Vec<isize>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum ComputerState {
     Initialized,
     Running,
@@ -36,6 +36,10 @@ impl OpcodeComputer {
             true => None,
             false => Some(self.output.remove(0)),
         }
+    }
+
+    pub fn halted(&self) -> bool {
+        self.state == ComputerState::Halted
     }
 
     pub fn run(&mut self) -> isize {
@@ -156,7 +160,7 @@ impl ParamMode {
     }
 }
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Param {
     value: isize,
     mode: ParamMode,
