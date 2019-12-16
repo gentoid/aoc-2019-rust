@@ -11,7 +11,7 @@ fn read_and_parse() -> Vec<isize> {
 
 pub fn aoc_07_01() -> isize {
     let program = read_and_parse();
-    let (signal, _) = find_max_signal(&program);
+    let (signal, _) = find_max_signal(&program, &vec![0, 1, 2, 3, 4]);
 
     signal
 }
@@ -19,8 +19,8 @@ pub fn aoc_07_02() -> u32 {
     0
 }
 
-fn find_max_signal(program: &Vec<isize>) -> (isize, Vec<isize>) {
-    let mut optimal_phases = vec![0, 1, 2, 3, 4];
+fn find_max_signal(program: &Vec<isize>, phases: &Vec<isize>) -> (isize, Vec<isize>) {
+    let mut optimal_phases = phases.clone();
     let mut signal = 0;
 
     let mut all_phases = swap_4(&optimal_phases);
@@ -206,8 +206,9 @@ mod tests {
             3, 15, 3, 16, 1002, 16, 10, 16, 1, 16, 15, 15, 4, 15, 99, 0, 0,
         ];
         let max_signal = 43210;
+        let phases = vec![0, 1, 2, 3, 4];
 
-        let found = find_max_signal(&program);
+        let found = find_max_signal(&program, &phases);
         assert_eq!(found, (max_signal, phase_settings));
     }
 
@@ -219,8 +220,9 @@ mod tests {
             99, 0, 0,
         ];
         let max_signal = 54321;
+        let phases = vec![0, 1, 2, 3, 4];
 
-        let found = find_max_signal(&program);
+        let found = find_max_signal(&program, &phases);
         assert_eq!(found, (max_signal, phase_settings));
     }
 
@@ -232,13 +234,14 @@ mod tests {
             33, 31, 31, 1, 32, 31, 31, 4, 31, 99, 0, 0, 0,
         ];
         let max_signal = 65210;
+        let phases = vec![0, 1, 2, 3, 4];
 
-        let found = find_max_signal(&program);
+        let found = find_max_signal(&program, &phases);
         assert_eq!(found, (max_signal, phase_settings));
     }
 
     #[test]
-    fn looped_amp_runs_first_example_program() {
+    fn runs_first_02_example_program() {
         let phase_settings = vec![9, 8, 7, 6, 5];
         let program = vec![
             3, 26, 1001, 26, -4, 26, 3, 27, 1002, 27, 2, 27, 1, 27, 26, 27, 4, 27, 1001, 28, -1,
@@ -248,5 +251,48 @@ mod tests {
 
         let signal = amplifier(&phase_settings, &program);
         assert_eq!(signal, max_signal);
+    }
+
+    #[test]
+    fn runs_second_02_example_program() {
+        let phase_settings = vec![9, 7, 8, 5, 6];
+        let program = vec![
+            3, 52, 1001, 52, -5, 52, 3, 53, 1, 52, 56, 54, 1007, 54, 5, 55, 1005, 55, 26, 1001, 54,
+            -5, 54, 1105, 1, 12, 1, 53, 54, 53, 1008, 54, 0, 55, 1001, 55, 1, 55, 2, 53, 55, 53, 4,
+            53, 1001, 56, -1, 56, 1005, 56, 6, 99, 0, 0, 0, 0, 10,
+        ];
+        let max_signal = 18216;
+
+        let signal = amplifier(&phase_settings, &program);
+        assert_eq!(signal, max_signal);
+    }
+
+    #[test]
+    fn finds_max_signal_for_the_first_02_example() {
+        let phase_settings = vec![9, 8, 7, 6, 5];
+        let program = vec![
+            3, 26, 1001, 26, -4, 26, 3, 27, 1002, 27, 2, 27, 1, 27, 26, 27, 4, 27, 1001, 28, -1,
+            28, 1005, 28, 6, 99, 0, 0, 5,
+        ];
+        let max_signal = 139629729;
+        let phases = vec![5, 6, 7, 8, 9];
+
+        let found = find_max_signal(&program, &phases);
+        assert_eq!(found, (max_signal, phase_settings));
+    }
+
+    #[test]
+    fn finds_max_signal_for_the_second_02_example() {
+        let phase_settings = vec![9, 7, 8, 5, 6];
+        let program = vec![
+            3, 52, 1001, 52, -5, 52, 3, 53, 1, 52, 56, 54, 1007, 54, 5, 55, 1005, 55, 26, 1001, 54,
+            -5, 54, 1105, 1, 12, 1, 53, 54, 53, 1008, 54, 0, 55, 1001, 55, 1, 55, 2, 53, 55, 53, 4,
+            53, 1001, 56, -1, 56, 1005, 56, 6, 99, 0, 0, 0, 0, 10,
+        ];
+        let max_signal = 18216;
+        let phases = vec![5, 6, 7, 8, 9];
+
+        let found = find_max_signal(&program, &phases);
+        assert_eq!(found, (max_signal, phase_settings));
     }
 }
