@@ -148,11 +148,13 @@ fn amplifier(phase_settings: &Vec<isize>, program: &Vec<isize>) -> isize {
             index = 0;
         }
         comps[index].add_input(&input).run();
-        input = comps[index].get_output().expect(&format!("There's no output for: {:?}", comps[index]));
+        input = comps[index]
+            .get_output()
+            .expect(&format!("There's no output for: {:?}", comps[index]));
         index += 1;
     }
 
-   input
+    input
 }
 
 #[cfg(test)]
