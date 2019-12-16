@@ -131,17 +131,6 @@ fn swap_2(seq: &Vec<isize>) -> Vec<Vec<isize>> {
 }
 
 fn amplifier(phase_settings: &Vec<isize>, program: &Vec<isize>) -> isize {
-    let mut input = 0;
-    for phase in phase_settings {
-        let mut computer = OpcodeComputer::new(program.clone());
-        computer.add_input(&phase).add_input(&input).run();
-        input = computer.get_output().unwrap();
-    }
-
-    input
-}
-
-fn looped_amplifier(phase_settings: &Vec<isize>, program: &Vec<isize>) -> isize {
     let mut comps = vec![];
 
     // Setup
@@ -255,7 +244,7 @@ mod tests {
         ];
         let max_signal = 139629729;
 
-        let signal = looped_amplifier(&phase_settings, &program);
+        let signal = amplifier(&phase_settings, &program);
         assert_eq!(signal, max_signal);
     }
 }
