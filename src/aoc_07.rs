@@ -15,8 +15,11 @@ pub fn aoc_07_01() -> isize {
 
     signal
 }
-pub fn aoc_07_02() -> u32 {
-    0
+pub fn aoc_07_02() -> isize {
+    let program = read_and_parse();
+    let (signal, _) = find_max_signal(&program, &vec![5, 6, 7, 8, 9]);
+
+    signal
 }
 
 fn find_max_signal(program: &Vec<isize>, phases: &Vec<isize>) -> (isize, Vec<isize>) {
