@@ -11,16 +11,16 @@ fn read_and_parse() -> Vec<isize> {
 
 pub fn aoc_05_01() -> isize {
     let memory = read_and_parse();
-    let mut program = OpcodeComputer::new(memory, Some(vec![1]));
-    program.run();
+    let mut program = OpcodeComputer::new(memory);
+    program.add_input(&1).run();
 
     *program.output.last().unwrap()
 }
 
 pub fn aoc_05_02() -> isize {
     let memory = read_and_parse();
-    let mut program = OpcodeComputer::new(memory, Some(vec![5]));
-    program.run();
+    let mut program = OpcodeComputer::new(memory);
+    program.add_input(&5).run();
 
     *program.output.last().unwrap()
 }

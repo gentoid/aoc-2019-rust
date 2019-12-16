@@ -19,7 +19,7 @@ pub fn aoc_07_02() -> u32 {
     0
 }
 
-fn find_max_signal(program: &Vec<isize>) -> (isize, Vec<u32>) {
+fn find_max_signal(program: &Vec<isize>) -> (isize, Vec<isize>) {
     let mut optimal_phases = vec![0, 1, 2, 3, 4];
     let mut signal = 0;
 
@@ -37,7 +37,7 @@ fn find_max_signal(program: &Vec<isize>) -> (isize, Vec<u32>) {
     (signal, optimal_phases)
 }
 
-fn swap_4(seq: &Vec<u32>) -> Vec<Vec<u32>> {
+fn swap_4(seq: &Vec<isize>) -> Vec<Vec<isize>> {
     let mut seqs = vec![];
 
     let mut new_seqs = swap_3(seq);
@@ -70,7 +70,7 @@ fn swap_4(seq: &Vec<u32>) -> Vec<Vec<u32>> {
     seqs
 }
 
-fn swap_3(seq: &Vec<u32>) -> Vec<Vec<u32>> {
+fn swap_3(seq: &Vec<isize>) -> Vec<Vec<isize>> {
     let mut seqs = vec![];
 
     let mut new_seqs = swap_2(seq);
@@ -97,7 +97,7 @@ fn swap_3(seq: &Vec<u32>) -> Vec<Vec<u32>> {
     seqs
 }
 
-fn swap_2(seq: &Vec<u32>) -> Vec<Vec<u32>> {
+fn swap_2(seq: &Vec<isize>) -> Vec<Vec<isize>> {
     let mut seqs = vec![];
     let seq = swap(seq, 0, 1);
     seqs.push(seq.clone());
@@ -112,7 +112,7 @@ fn swap_2(seq: &Vec<u32>) -> Vec<Vec<u32>> {
     seqs
 }
 
-fn swap(seq: &Vec<u32>, i: usize, j: usize) -> Vec<u32> {
+fn swap(seq: &Vec<isize>, i: usize, j: usize) -> Vec<isize> {
     let mut seq = seq.clone();
     let tmp = seq[i];
     seq[i] = seq[j];
@@ -120,14 +120,11 @@ fn swap(seq: &Vec<u32>, i: usize, j: usize) -> Vec<u32> {
     seq
 }
 
-fn amplifier(phase_settings: &Vec<u32>, program: &Vec<isize>) -> isize {
+fn amplifier(phase_settings: &Vec<isize>, program: &Vec<isize>) -> isize {
     let mut input = 0;
     for phase in phase_settings {
-        let mut computer = OpcodeComputer::new(
-            program.clone(),
-            Some(vec![phase.clone() as isize, input.clone()]),
-        );
-        computer.run();
+        let mut computer = OpcodeComputer::new(program.clone());
+        computer.add_input(&phase).add_input(&input).run();
         input = computer.output[0];
     }
 

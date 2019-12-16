@@ -32,5 +32,5 @@ fn init_with_noun_verb(noun: isize, verb: isize) -> OpcodeComputer {
     memory[1] = noun;
     memory[2] = verb;
 
-    OpcodeComputer::new(memory, None)
+    OpcodeComputer::new(memory)
 }

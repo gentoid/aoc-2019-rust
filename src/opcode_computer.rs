@@ -1,35 +1,57 @@
 #[derive(Debug)]
 pub struct OpcodeComputer {
-    memory: Vec<isize>,
+    instructions: Vec<isize>,
     instruction_pointer: usize,
-    halted: bool,
-    input: Option<Vec<isize>>,
-    input_pointer: usize,
+    pub state: ComputerState,
+    input: Vec<isize>,
     pub output: Vec<isize>,
 }
 
+#[derive(Debug)]
+pub enum ComputerState {
+    Initialized,
+    Running,
+    WaitingForInput(Param),
+    Halted,
+}
+
 impl OpcodeComputer {
-    pub fn new(memory: Vec<isize>, input: Option<Vec<isize>>) -> Self {
+    pub fn new(instructions: Vec<isize>) -> Self {
         Self {
-            memory,
+            instructions,
             instruction_pointer: 0,
-            halted: false,
-            input,
-            input_pointer: 0,
+            state: ComputerState::Initialized,
+            input: vec![],
             output: vec![],
         }
     }
 
+    pub fn add_input(&mut self, input: &isize) -> &mut Self {
+        self.input.push(input.clone());
+        self
+    }
+
     pub fn run(&mut self) -> isize {
-        while !self.halted {
+        self.state = ComputerState::Running;
+
+        while self.perform_more() {
             self.tick();
         }
 
-        self.memory[0]
+        self.instructions[0]
+    }
+
+    fn perform_more(&self) -> bool {
+        use ComputerState::*;
+
+        match self.state {
+            WaitingForInput(_) | Halted => false,
+            _ => true,
+        }
     }
 
     fn get(&mut self) -> isize {
-        let result = self.memory[self.instruction_pointer];
+        let result = self.instructions[self.instruction_pointer];
         self.instruction_pointer += 1;
         result
     }
@@ -40,10 +62,9 @@ impl OpcodeComputer {
         match Instruction::next(self) {
             OC01(params) => self.opcode_with_3_args(&params, |a, b| a + b),
             OC02(params) => self.opcode_with_3_args(&params, |a, b| a * b),
-            OC03(param) => {
-                let input = self.take_input();
-                self.set_value(&param, input);
-            }
+            OC03(param) => self.take_input(&param),
+            // self.set_value(&param, input);
+            // }
             OC04(param) => self.put_output(self.value_for(&param)),
             OC05(params) => {
                 if self.value_for(&params[0]) != 0 {
@@ -69,14 +90,14 @@ impl OpcodeComputer {
                     self.set_value(&params[2], 0)
                 }
             }
-            OC99 => self.halted = true,
+            OC99 => self.state = ComputerState::Halted,
             _ => unimplemented!(),
         }
     }
 
     fn value_for(&self, param: &Param) -> isize {
         match param.mode {
-            ParamMode::Positional => self.memory[param.value as usize],
+            ParamMode::Positional => self.instructions[param.value as usize],
             ParamMode::Immidiate => param.value,
         }
     }
@@ -90,15 +111,18 @@ impl OpcodeComputer {
 
     fn set_value(&mut self, param: &Param, value: isize) {
         match param.mode {
-            ParamMode::Positional => self.memory[param.value as usize] = value,
+            ParamMode::Positional => self.instructions[param.value as usize] = value,
             ParamMode::Immidiate => panic!("It's impossible to use immidiate mode to set value"),
         }
     }
 
-    fn take_input(&mut self) -> isize {
-        let input = self.input.as_ref().unwrap()[self.input_pointer];
-        self.input_pointer += 1;
-        input
+    fn take_input(&mut self, param: &Param) {
+        if self.input.is_empty() {
+            self.state = ComputerState::WaitingForInput(*param);
+            return;
+        }
+        let input = self.input.remove(0);
+        self.set_value(&param, input);
     }
 
     fn put_output(&mut self, value: isize) {
@@ -106,8 +130,8 @@ impl OpcodeComputer {
     }
 }
 
-#[derive(Debug, PartialEq)]
-enum ParamMode {
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum ParamMode {
     Positional,
     Immidiate,
 }
@@ -122,7 +146,8 @@ impl ParamMode {
     }
 }
 
-struct Param {
+#[derive(Clone, Copy, Debug)]
+pub struct Param {
     value: isize,
     mode: ParamMode,
 }
@@ -202,30 +227,30 @@ mod tests {
 
     #[test]
     fn puts_input_to_output() {
-        let mut program = OpcodeComputer::new(vec![3, 0, 4, 0, 99], Some(vec![7]));
-        program.run();
+        let mut program = OpcodeComputer::new(vec![3, 0, 4, 0, 99]);
+        program.add_input(&7).run();
         assert_eq!(program.output, vec![7]);
     }
 
     #[test]
     fn multiplies_and_puts_to_the_latest() {
-        let mut program = OpcodeComputer::new(vec![2, 4, 4, 5, 99, 0], None);
+        let mut program = OpcodeComputer::new(vec![2, 4, 4, 5, 99, 0]);
         program.run();
-        assert_eq!(program.memory, vec![2, 4, 4, 5, 99, 9801]);
+        assert_eq!(program.instructions, vec![2, 4, 4, 5, 99, 9801]);
     }
 
     #[test]
     fn sums_and_puts_to_the_first() {
-        let mut program = OpcodeComputer::new(vec![1, 0, 0, 0, 99], None);
+        let mut program = OpcodeComputer::new(vec![1, 0, 0, 0, 99]);
         program.run();
-        assert_eq!(program.memory, vec![2, 0, 0, 0, 99]);
+        assert_eq!(program.instructions, vec![2, 0, 0, 0, 99]);
     }
 
     #[test]
     fn overrides_99_in_the_middle() {
-        let mut program = OpcodeComputer::new(vec![1, 1, 1, 4, 99, 5, 6, 0, 99], None);
+        let mut program = OpcodeComputer::new(vec![1, 1, 1, 4, 99, 5, 6, 0, 99]);
         program.run();
-        assert_eq!(program.memory, vec![30, 1, 1, 4, 2, 5, 6, 0, 99]);
+        assert_eq!(program.instructions, vec![30, 1, 1, 4, 2, 5, 6, 0, 99]);
     }
 
     #[test]
@@ -244,45 +269,43 @@ mod tests {
 
     #[test]
     fn sum_opcode_with_modes() {
-        let mut program = OpcodeComputer::new(vec![1001, 5, 3, 0, 99, 8], None);
+        let mut program = OpcodeComputer::new(vec![1001, 5, 3, 0, 99, 8]);
         program.run();
-        assert_eq!(program.memory, vec![11, 5, 3, 0, 99, 8]);
+        assert_eq!(program.instructions, vec![11, 5, 3, 0, 99, 8]);
     }
 
     #[test]
     fn sum_negativ_with_modes() {
-        let mut program = OpcodeComputer::new(vec![1101, 100, -1, 4, 0], None);
+        let mut program = OpcodeComputer::new(vec![1101, 100, -1, 4, 0]);
         program.run();
-        assert_eq!(program.memory, vec![1101, 100, -1, 4, 99]);
+        assert_eq!(program.instructions, vec![1101, 100, -1, 4, 99]);
     }
 
     #[test]
     fn position_equal_to() {
-        let mut program =
-            OpcodeComputer::new(vec![3, 9, 8, 9, 10, 9, 4, 9, 99, -1, 8], Some(vec![8]));
-        program.run();
+        let mut program = OpcodeComputer::new(vec![3, 9, 8, 9, 10, 9, 4, 9, 99, -1, 8]);
+        program.add_input(&8).run();
         assert_eq!(*program.output.last().unwrap(), 1);
     }
 
     #[test]
     fn position_not_equal_to() {
-        let mut program =
-            OpcodeComputer::new(vec![3, 9, 8, 9, 10, 9, 4, 9, 99, -1, 8], Some(vec![7]));
-        program.run();
+        let mut program = OpcodeComputer::new(vec![3, 9, 8, 9, 10, 9, 4, 9, 99, -1, 8]);
+        program.add_input(&7).run();
         assert_eq!(*program.output.last().unwrap(), 0);
     }
 
     #[test]
     fn immediate_less_than() {
-        let mut program = OpcodeComputer::new(vec![3, 3, 1107, -1, 8, 3, 4, 3, 99], Some(vec![7]));
-        program.run();
+        let mut program = OpcodeComputer::new(vec![3, 3, 1107, -1, 8, 3, 4, 3, 99]);
+        program.add_input(&7).run();
         assert_eq!(*program.output.last().unwrap(), 1);
     }
 
     #[test]
     fn immediate_not_less_than() {
-        let mut program = OpcodeComputer::new(vec![3, 3, 1107, -1, 8, 3, 4, 3, 99], Some(vec![10]));
-        program.run();
+        let mut program = OpcodeComputer::new(vec![3, 3, 1107, -1, 8, 3, 4, 3, 99]);
+        program.add_input(&10).run();
         assert_eq!(*program.output.last().unwrap(), 0);
     }
 }
