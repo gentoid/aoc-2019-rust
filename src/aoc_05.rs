@@ -1,4 +1,4 @@
-use {crate::opcode_computer::Program, std::fs};
+use {crate::opcode_computer::OpcodeComputer, std::fs};
 
 fn read_and_parse() -> Vec<isize> {
     let content = fs::read_to_string("input-05.txt").unwrap();
@@ -11,7 +11,7 @@ fn read_and_parse() -> Vec<isize> {
 
 pub fn aoc_05_01() -> isize {
     let memory = read_and_parse();
-    let mut program = Program::new(memory, Some(vec![1]));
+    let mut program = OpcodeComputer::new(memory, Some(vec![1]));
     program.run();
 
     *program.output.last().unwrap()
@@ -19,7 +19,7 @@ pub fn aoc_05_01() -> isize {
 
 pub fn aoc_05_02() -> isize {
     let memory = read_and_parse();
-    let mut program = Program::new(memory, Some(vec![5]));
+    let mut program = OpcodeComputer::new(memory, Some(vec![5]));
     program.run();
 
     *program.output.last().unwrap()

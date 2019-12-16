@@ -1,4 +1,4 @@
-use {crate::opcode_computer::Program, std::fs};
+use {crate::opcode_computer::OpcodeComputer, std::fs};
 
 fn read_and_parse() -> Vec<isize> {
     let content = fs::read_to_string("input-07.txt").unwrap();
@@ -123,7 +123,7 @@ fn swap(seq: &Vec<u32>, i: usize, j: usize) -> Vec<u32> {
 fn amplifier(phase_settings: &Vec<u32>, program: &Vec<isize>) -> isize {
     let mut input = 0;
     for phase in phase_settings {
-        let mut computer = Program::new(
+        let mut computer = OpcodeComputer::new(
             program.clone(),
             Some(vec![phase.clone() as isize, input.clone()]),
         );
