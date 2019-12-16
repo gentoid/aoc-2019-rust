@@ -44,25 +44,29 @@ fn swap_4(seq: &Vec<isize>) -> Vec<Vec<isize>> {
     let seq = new_seqs.last().unwrap().clone();
     seqs.append(&mut new_seqs);
 
-    let seq = swap(&seq, 0, 4);
+    let mut seq = seq.clone();
+    seq.swap(0, 4);
     seqs.push(seq.clone());
     let mut new_seqs = swap_3(&seq);
     let seq = new_seqs.last().unwrap().clone();
     seqs.append(&mut new_seqs);
 
-    let seq = swap(&seq, 0, 4);
+    let mut seq = seq.clone();
+    seq.swap(0, 4);
     seqs.push(seq.clone());
     let mut new_seqs = swap_3(&seq);
     let seq = new_seqs.last().unwrap().clone();
     seqs.append(&mut new_seqs);
 
-    let seq = swap(&seq, 0, 4);
+    let mut seq = seq.clone();
+    seq.swap(0, 4);
     seqs.push(seq.clone());
     let mut new_seqs = swap_3(&seq);
     let seq = new_seqs.last().unwrap().clone();
     seqs.append(&mut new_seqs);
 
-    let seq = swap(&seq, 0, 4);
+    let mut seq = seq.clone();
+    seq.swap(0, 4);
     seqs.push(seq.clone());
     let mut new_seqs = swap_3(&seq);
     seqs.append(&mut new_seqs);
@@ -77,19 +81,22 @@ fn swap_3(seq: &Vec<isize>) -> Vec<Vec<isize>> {
     let seq = new_seqs.last().unwrap().clone();
     seqs.append(&mut new_seqs);
 
-    let seq = swap(&seq, 1, 3);
+    let mut seq = seq.clone();
+    seq.swap(1, 3);
     seqs.push(seq.clone());
     let mut new_seqs = swap_2(&seq);
     let seq = new_seqs.last().unwrap().clone();
     seqs.append(&mut new_seqs);
 
-    let seq = swap(&seq, 1, 3);
+    let mut seq = seq.clone();
+    seq.swap(1, 3);
     seqs.push(seq.clone());
     let mut new_seqs = swap_2(&seq);
     let seq = new_seqs.last().unwrap().clone();
     seqs.append(&mut new_seqs);
 
-    let seq = swap(&seq, 0, 3);
+    let mut seq = seq.clone();
+    seq.swap(0, 3);
     seqs.push(seq.clone());
     let mut new_seqs = swap_2(&seq);
     seqs.append(&mut new_seqs);
@@ -99,25 +106,28 @@ fn swap_3(seq: &Vec<isize>) -> Vec<Vec<isize>> {
 
 fn swap_2(seq: &Vec<isize>) -> Vec<Vec<isize>> {
     let mut seqs = vec![];
-    let seq = swap(seq, 0, 1);
-    seqs.push(seq.clone());
-    let seq = swap(&seq, 1, 2);
-    seqs.push(seq.clone());
-    let seq = swap(&seq, 0, 1);
-    seqs.push(seq.clone());
-    let seq = swap(&seq, 1, 2);
-    seqs.push(seq.clone());
-    let seq = swap(&seq, 0, 1);
-    seqs.push(seq);
-    seqs
-}
 
-fn swap(seq: &Vec<isize>, i: usize, j: usize) -> Vec<isize> {
     let mut seq = seq.clone();
-    let tmp = seq[i];
-    seq[i] = seq[j];
-    seq[j] = tmp;
-    seq
+    seq.swap(0, 1);
+    seqs.push(seq.clone());
+
+    let mut seq = seq.clone();
+    seq.swap(1, 2);
+    seqs.push(seq.clone());
+
+    let mut seq = seq.clone();
+    seq.swap(0, 1);
+    seqs.push(seq.clone());
+
+    let mut seq = seq.clone();
+    seq.swap(1, 2);
+    seqs.push(seq.clone());
+
+    let mut seq = seq.clone();
+    seq.swap(0, 1);
+    seqs.push(seq);
+
+    seqs
 }
 
 fn amplifier(phase_settings: &Vec<isize>, program: &Vec<isize>) -> isize {
