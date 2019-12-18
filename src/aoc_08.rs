@@ -1,4 +1,4 @@
-use {itertools::Itertools, std::fs};
+use std::fs;
 
 fn read() -> String {
     fs::read_to_string("inputs/input-08.txt")
