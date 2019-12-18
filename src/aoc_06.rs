@@ -7,7 +7,7 @@ use std::{
 type Cache = HashMap<String, (u32, Option<String>)>;
 
 fn read_lines() -> Vec<String> {
-    let file = File::open("input-06.txt").unwrap();
+    let file = File::open("inputs/input-06.txt").unwrap();
     let reader = BufReader::new(file);
 
     reader.lines().map(|l| l.unwrap()).collect()

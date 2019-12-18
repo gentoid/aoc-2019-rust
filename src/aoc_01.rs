@@ -12,7 +12,7 @@ pub fn aoc_01_02() -> i32 {
 }
 
 fn read_and_parse() -> Vec<i32> {
-    let file = File::open("input-01.txt").unwrap();
+    let file = File::open("inputs/input-01.txt").unwrap();
     let reader = BufReader::new(file);
     let mut result = vec![];
 

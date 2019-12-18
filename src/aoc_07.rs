@@ -1,7 +1,7 @@
 use {crate::opcode_computer::OpcodeComputer, std::fs};
 
 fn read_and_parse() -> Vec<isize> {
-    let content = fs::read_to_string("input-07.txt").unwrap();
+    let content = fs::read_to_string("inputs/input-07.txt").unwrap();
     content
         .trim()
         .split(",")

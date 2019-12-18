@@ -131,7 +131,7 @@ impl Segment {
 }
 
 fn read_and_parse() -> Vec<Vec<Diff>> {
-    let file = File::open("input-03.txt").unwrap();
+    let file = File::open("inputs/input-03.txt").unwrap();
     let reader = BufReader::new(file);
 
     reader
