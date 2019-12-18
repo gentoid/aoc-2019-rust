@@ -31,7 +31,13 @@ fn to_image(layer: &Vec<char>, width: usize) -> Vec<String> {
     layer
         .chunks(width)
         .into_iter()
-        .map(|chunk| chunk.iter().collect())
+        .map(|chunk| {
+            chunk
+                .iter()
+                .collect::<String>()
+                .replace("0", " ")
+                .replace("1", "#")
+        })
         .collect()
 }
 
