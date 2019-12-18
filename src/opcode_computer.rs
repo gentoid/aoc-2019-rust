@@ -115,9 +115,7 @@ impl OpcodeComputer {
         match param.mode {
             ParamMode::Positional => self.instructions[param.value as usize],
             ParamMode::Immidiate => param.value,
-            ParamMode::Relative => {
-                self.instructions[param.value as usize + self.relative_base as usize]
-            }
+            ParamMode::Relative => self.instructions[(param.value + self.relative_base) as usize],
         }
     }
 
@@ -133,7 +131,7 @@ impl OpcodeComputer {
             ParamMode::Positional => self.instructions[param.value as usize] = value,
             ParamMode::Immidiate => panic!("It's impossible to use immidiate mode to set value"),
             ParamMode::Relative => {
-                self.instructions[param.value as usize + self.relative_base as usize] = value
+                self.instructions[(param.value + self.relative_base) as usize] = value
             }
         }
     }
