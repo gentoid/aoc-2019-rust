@@ -5,6 +5,7 @@ pub struct OpcodeComputer {
     pub state: ComputerState,
     input: Vec<isize>,
     pub output: Vec<isize>,
+    relative_base: isize,
 }
 
 #[derive(Debug, PartialEq)]
@@ -23,6 +24,7 @@ impl OpcodeComputer {
             state: ComputerState::Initialized,
             input: vec![],
             output: vec![],
+            relative_base: 0,
         }
     }
 
@@ -104,8 +106,8 @@ impl OpcodeComputer {
                     self.set_value(&params[2], 0)
                 }
             }
+            OC09(param) => self.relative_base += param.value,
             OC99 => self.state = ComputerState::Halted,
-            _ => unimplemented!(),
         }
     }
 
@@ -113,6 +115,9 @@ impl OpcodeComputer {
         match param.mode {
             ParamMode::Positional => self.instructions[param.value as usize],
             ParamMode::Immidiate => param.value,
+            ParamMode::Relative => {
+                self.instructions[param.value as usize + self.relative_base as usize]
+            }
         }
     }
 
@@ -127,6 +132,9 @@ impl OpcodeComputer {
         match param.mode {
             ParamMode::Positional => self.instructions[param.value as usize] = value,
             ParamMode::Immidiate => panic!("It's impossible to use immidiate mode to set value"),
+            ParamMode::Relative => {
+                self.instructions[param.value as usize + self.relative_base as usize] = value
+            }
         }
     }
 
@@ -148,6 +156,7 @@ impl OpcodeComputer {
 pub enum ParamMode {
     Positional,
     Immidiate,
+    Relative,
 }
 
 impl ParamMode {
@@ -155,6 +164,7 @@ impl ParamMode {
         match value {
             0 => ParamMode::Positional,
             1 => ParamMode::Immidiate,
+            2 => ParamMode::Relative,
             _ => unreachable!("Incorrect value to init ParamMode: {}", value),
         }
     }
@@ -181,6 +191,7 @@ enum Instruction {
     OC06([Param; 2]),
     OC07([Param; 3]),
     OC08([Param; 3]),
+    OC09(Param),
     OC99,
 }
 
@@ -218,6 +229,7 @@ impl Instruction {
                 Param::new(program.get(), m2),
                 Param::new(program.get(), m3),
             ]),
+            (9, [m1, _, _]) => OC09(Param::new(program.get(), m1)),
             (99, _) => OC99,
             _ => unreachable!("Wrong instruction {}!", instruction),
         }
