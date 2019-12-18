@@ -5,6 +5,7 @@ mod aoc_04;
 mod aoc_05;
 mod aoc_06;
 mod aoc_07;
+mod aoc_08;
 mod opcode_computer;
 
 fn main() {
@@ -22,4 +23,5 @@ fn main() {
     println!("06 / 02: {}", aoc_06::aoc_06_02());
     println!("07 / 01: {}", aoc_07::aoc_07_01());
     println!("07 / 02: {}", aoc_07::aoc_07_02());
+    println!("08 / 01: {}", aoc_08::aoc_08_01());
 }
