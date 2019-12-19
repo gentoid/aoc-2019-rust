@@ -133,11 +133,12 @@ fn find_covered(map: &Map, coord: &Coord, test_coord: &Coord) -> usize {
     covered
 }
 
-#[cfg(tests)]
+#[cfg(test)]
 mod tests {
+    use super::*;
     #[test]
     fn finds_the_best_asteroid_on_tiny_map() {
         let input = vec![".#..#", ".....", "#####", "....#", "...##"];
-        assert_eq!(find_best_asteroid(&input), (3, 4));
+        assert_eq!(Coord::new(3, 4), find_best_asteroid(&input));
     }
 }
