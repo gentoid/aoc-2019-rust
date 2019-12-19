@@ -45,19 +45,19 @@ impl Map {
     }
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 pub struct Delta {
     x: isize,
     y: isize,
 }
 
-impl Mul<usize> for Delta {
+impl Mul<isize> for Delta {
     type Output = Self;
 
-    fn mul(self, rhs: usize) -> Self::Output {
+    fn mul(self, rhs: isize) -> Self::Output {
         Self {
-            x: self.x * rhs as isize,
-            y: self.x * rhs as isize,
+            x: self.x * rhs,
+            y: self.y * rhs,
         }
     }
 }
@@ -70,6 +70,7 @@ fn find_best_asteroid(input: &Vec<&str>) -> Coord {
 
     for asteroid in map.asteroids.keys() {
         let seen = how_much_asteroids_seen(&map, &asteroid);
+        println!("{:?} => {:?}", asteroid, seen);
 
         if seen > max_seen {
             max_seen = seen;
@@ -117,9 +118,11 @@ fn find_covered(map: &Map, coord: &Coord, test_coord: &Coord) -> usize {
     let delta = coord.delta(&test_coord);
     let mut factor = 1;
     loop {
-        let check = coord.with_delta(&(delta.clone() * factor));
+        let new_delta = delta.clone() * factor;
+        println!("{:?}", new_delta);
+        let check = coord.with_delta(&new_delta);
         factor += 1;
-        if *coord == check {
+        if *coord == check || check == *test_coord {
             continue;
         }
 
