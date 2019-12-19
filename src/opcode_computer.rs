@@ -81,37 +81,39 @@ impl OpcodeComputer {
     fn tick(&mut self) {
         use Instruction::*;
 
-        match Instruction::next(self) {
-            OC01(params) => self.opcode_with_3_args(&params, |a, b| a + b),
-            OC02(params) => self.opcode_with_3_args(&params, |a, b| a * b),
-            OC03(param) => self.take_input(&param),
-            OC04(param) => self.put_output(self.value_for_param(&param)),
-            OC05(params) => {
+        let instruction = Instruction::next(self);
+
+        match instruction {
+            Sum(params) => self.opcode_with_3_args(&params, |a, b| a + b),
+            Mul(params) => self.opcode_with_3_args(&params, |a, b| a * b),
+            Input(param) => self.take_input(&param),
+            Output(param) => self.put_output(self.value_for_param(&param)),
+            JmpIfTrue(params) => {
                 if self.value_for_param(&params[0]) != 0 {
                     self.instruction_pointer = self.value_for_param(&params[1]) as usize;
                 }
             }
-            OC06(params) => {
+            JmpIfFalse(params) => {
                 if self.value_for_param(&params[0]) == 0 {
                     self.instruction_pointer = self.value_for_param(&params[1]) as usize;
                 }
             }
-            OC07(params) => {
+            LessThan(params) => {
                 if self.value_for_param(&params[0]) < self.value_for_param(&params[1]) {
                     self.set_value_from_param(&params[2], 1)
                 } else {
                     self.set_value_from_param(&params[2], 0)
                 }
             }
-            OC08(params) => {
+            Equal(params) => {
                 if self.value_for_param(&params[0]) == self.value_for_param(&params[1]) {
                     self.set_value_from_param(&params[2], 1)
                 } else {
                     self.set_value_from_param(&params[2], 0)
                 }
             }
-            OC09(param) => self.relative_base += param.value,
-            OC99 => self.state = ComputerState::Halted,
+            SetRelBase(param) => self.relative_base += param.value,
+            Halt => self.state = ComputerState::Halted,
         }
     }
 
@@ -204,17 +206,18 @@ impl Param {
     }
 }
 
+#[derive(Debug)]
 enum Instruction {
-    OC01([Param; 3]),
-    OC02([Param; 3]),
-    OC03(Param),
-    OC04(Param),
-    OC05([Param; 2]),
-    OC06([Param; 2]),
-    OC07([Param; 3]),
-    OC08([Param; 3]),
-    OC09(Param),
-    OC99,
+    Sum([Param; 3]),
+    Mul([Param; 3]),
+    Input(Param),
+    Output(Param),
+    JmpIfTrue([Param; 2]),
+    JmpIfFalse([Param; 2]),
+    LessThan([Param; 3]),
+    Equal([Param; 3]),
+    SetRelBase(Param),
+    Halt,
 }
 
 impl Instruction {
@@ -223,36 +226,36 @@ impl Instruction {
         let instruction = program.get();
 
         match Instruction::parse(instruction) {
-            (1, [m1, m2, m3]) => OC01([
+            (1, [m1, m2, m3]) => Sum([
                 Param::new(program.get(), m1),
                 Param::new(program.get(), m2),
                 Param::new(program.get(), m3),
             ]),
-            (2, [m1, m2, m3]) => OC02([
+            (2, [m1, m2, m3]) => Mul([
                 Param::new(program.get(), m1),
                 Param::new(program.get(), m2),
                 Param::new(program.get(), m3),
             ]),
-            (3, [m, _, _]) => OC03(Param::new(program.get(), m)),
-            (4, [m, _, _]) => OC04(Param::new(program.get(), m)),
+            (3, [m, _, _]) => Input(Param::new(program.get(), m)),
+            (4, [m, _, _]) => Output(Param::new(program.get(), m)),
             (5, [m1, m2, _]) => {
-                OC05([Param::new(program.get(), m1), Param::new(program.get(), m2)])
+                JmpIfTrue([Param::new(program.get(), m1), Param::new(program.get(), m2)])
             }
             (6, [m1, m2, _]) => {
-                OC06([Param::new(program.get(), m1), Param::new(program.get(), m2)])
+                JmpIfFalse([Param::new(program.get(), m1), Param::new(program.get(), m2)])
             }
-            (7, [m1, m2, m3]) => OC07([
+            (7, [m1, m2, m3]) => LessThan([
                 Param::new(program.get(), m1),
                 Param::new(program.get(), m2),
                 Param::new(program.get(), m3),
             ]),
-            (8, [m1, m2, m3]) => OC08([
+            (8, [m1, m2, m3]) => Equal([
                 Param::new(program.get(), m1),
                 Param::new(program.get(), m2),
                 Param::new(program.get(), m3),
             ]),
-            (9, [m1, _, _]) => OC09(Param::new(program.get(), m1)),
-            (99, _) => OC99,
+            (9, [m1, _, _]) => SetRelBase(Param::new(program.get(), m1)),
+            (99, _) => Halt,
             _ => unreachable!("Wrong instruction {}!", instruction),
         }
     }
