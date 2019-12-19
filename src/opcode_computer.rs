@@ -112,7 +112,7 @@ impl OpcodeComputer {
                     self.set_value_from_param(&params[2], 0)
                 }
             }
-            SetRelBase(param) => self.relative_base += param.value,
+            SetRelBase(param) => self.relative_base += self.value_for_param(&param),
             Halt => self.state = ComputerState::Halted,
         }
     }
