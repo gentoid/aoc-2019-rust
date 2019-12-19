@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, thread::sleep, time::Duration};
 
 #[derive(Debug)]
 pub struct OpcodeComputer {
@@ -9,6 +9,7 @@ pub struct OpcodeComputer {
     input: Vec<isize>,
     pub output: Vec<isize>,
     relative_base: isize,
+    debug: bool,
 }
 
 #[derive(Debug, PartialEq)]
@@ -29,6 +30,7 @@ impl OpcodeComputer {
             input: vec![],
             output: vec![],
             relative_base: 0,
+            debug: false,
         }
     }
 
@@ -63,6 +65,10 @@ impl OpcodeComputer {
         self.instructions[0]
     }
 
+    pub fn debug(&mut self) {
+        self.debug = true;
+    }
+
     fn perform_more(&self) -> bool {
         use ComputerState::*;
 
@@ -82,6 +88,10 @@ impl OpcodeComputer {
         use Instruction::*;
 
         let instruction = Instruction::next(self);
+        if self.debug {
+            println!("!!== {:?} == !!", self.name);
+            println!("Got instruction: {:?}", instruction);
+        }
 
         match instruction {
             Sum(params) => self.opcode_with_3_args(&params, |a, b| a + b),
@@ -115,6 +125,18 @@ impl OpcodeComputer {
             SetRelBase(param) => self.relative_base += self.value_for_param(&param),
             Halt => self.state = ComputerState::Halted,
         }
+        if self.debug {
+            println!("instructions: {:?}", self.instructions);
+            println!("instruction_pointer: {:?}", self.instruction_pointer);
+            println!("extended_memory: {:?}", self.extended_memory);
+            println!("state: {:?}", self.state);
+            println!("input: {:?}", self.input);
+            println!("output: {:?}", self.output);
+            println!("relative_base: {:?}", self.relative_base);
+            println!("=====================================================================");
+            println!("");
+            sleep(Duration::from_millis(2000 as u64));
+        }
     }
 
     fn value_for_param(&self, param: &Param) -> isize {
@@ -126,14 +148,21 @@ impl OpcodeComputer {
     }
 
     fn get_value(&self, address: usize) -> isize {
-        if self.extended_memory_address(address) {
+        let result = if self.extended_memory_address(address) {
             self.extended_memory.get(&address).unwrap_or(&0).clone()
         } else {
             self.instructions[address]
+        };
+        if self.debug {
+            println!("Got value {} at {}", result, address);
         }
+        result
     }
 
     fn set_value(&mut self, address: usize, value: isize) {
+        if self.debug {
+            println!("Going to set {} to {}", address, value);
+        }
         if self.extended_memory_address(address) {
             self.extended_memory.insert(address, value);
         } else {
