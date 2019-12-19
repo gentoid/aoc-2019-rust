@@ -138,7 +138,7 @@ fn amplifier(phase_settings: &Vec<isize>, program: &Vec<isize>) -> isize {
 
     // Setup
     for phase in phase_settings {
-        let mut comp = OpcodeComputer::new(program.clone());
+        let mut comp = OpcodeComputer::new(&program);
         comp.add_input(&phase);
         comps.push(comp);
     }

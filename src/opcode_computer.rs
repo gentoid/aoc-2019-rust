@@ -17,9 +17,9 @@ pub enum ComputerState {
 }
 
 impl OpcodeComputer {
-    pub fn new(instructions: Vec<isize>) -> Self {
+    pub fn new(instructions: &Vec<isize>) -> Self {
         Self {
-            instructions,
+            instructions: instructions.clone(),
             instruction_pointer: 0,
             state: ComputerState::Initialized,
             input: vec![],
@@ -251,28 +251,28 @@ mod tests {
 
     #[test]
     fn puts_input_to_output() {
-        let mut program = OpcodeComputer::new(vec![3, 0, 4, 0, 99]);
+        let mut program = OpcodeComputer::new(&vec![3, 0, 4, 0, 99]);
         program.add_input(&7).run();
         assert_eq!(program.get_output(), Some(7));
     }
 
     #[test]
     fn multiplies_and_puts_to_the_latest() {
-        let mut program = OpcodeComputer::new(vec![2, 4, 4, 5, 99, 0]);
+        let mut program = OpcodeComputer::new(&vec![2, 4, 4, 5, 99, 0]);
         program.run();
         assert_eq!(program.instructions, vec![2, 4, 4, 5, 99, 9801]);
     }
 
     #[test]
     fn sums_and_puts_to_the_first() {
-        let mut program = OpcodeComputer::new(vec![1, 0, 0, 0, 99]);
+        let mut program = OpcodeComputer::new(&vec![1, 0, 0, 0, 99]);
         program.run();
         assert_eq!(program.instructions, vec![2, 0, 0, 0, 99]);
     }
 
     #[test]
     fn overrides_99_in_the_middle() {
-        let mut program = OpcodeComputer::new(vec![1, 1, 1, 4, 99, 5, 6, 0, 99]);
+        let mut program = OpcodeComputer::new(&vec![1, 1, 1, 4, 99, 5, 6, 0, 99]);
         program.run();
         assert_eq!(program.instructions, vec![30, 1, 1, 4, 2, 5, 6, 0, 99]);
     }
@@ -293,42 +293,42 @@ mod tests {
 
     #[test]
     fn sum_opcode_with_modes() {
-        let mut program = OpcodeComputer::new(vec![1001, 5, 3, 0, 99, 8]);
+        let mut program = OpcodeComputer::new(&vec![1001, 5, 3, 0, 99, 8]);
         program.run();
         assert_eq!(program.instructions, vec![11, 5, 3, 0, 99, 8]);
     }
 
     #[test]
     fn sum_negativ_with_modes() {
-        let mut program = OpcodeComputer::new(vec![1101, 100, -1, 4, 0]);
+        let mut program = OpcodeComputer::new(&vec![1101, 100, -1, 4, 0]);
         program.run();
         assert_eq!(program.instructions, vec![1101, 100, -1, 4, 99]);
     }
 
     #[test]
     fn position_equal_to() {
-        let mut program = OpcodeComputer::new(vec![3, 9, 8, 9, 10, 9, 4, 9, 99, -1, 8]);
+        let mut program = OpcodeComputer::new(&vec![3, 9, 8, 9, 10, 9, 4, 9, 99, -1, 8]);
         program.add_input(&8).run();
         assert_eq!(program.get_output(), Some(1));
     }
 
     #[test]
     fn position_not_equal_to() {
-        let mut program = OpcodeComputer::new(vec![3, 9, 8, 9, 10, 9, 4, 9, 99, -1, 8]);
+        let mut program = OpcodeComputer::new(&vec![3, 9, 8, 9, 10, 9, 4, 9, 99, -1, 8]);
         program.add_input(&7).run();
         assert_eq!(program.get_output(), Some(0));
     }
 
     #[test]
     fn immediate_less_than() {
-        let mut program = OpcodeComputer::new(vec![3, 3, 1107, -1, 8, 3, 4, 3, 99]);
+        let mut program = OpcodeComputer::new(&vec![3, 3, 1107, -1, 8, 3, 4, 3, 99]);
         program.add_input(&7).run();
         assert_eq!(program.get_output(), Some(1));
     }
 
     #[test]
     fn immediate_not_less_than() {
-        let mut program = OpcodeComputer::new(vec![3, 3, 1107, -1, 8, 3, 4, 3, 99]);
+        let mut program = OpcodeComputer::new(&vec![3, 3, 1107, -1, 8, 3, 4, 3, 99]);
         program.add_input(&10).run();
         assert_eq!(program.get_output(), Some(0));
     }
