@@ -126,9 +126,9 @@ impl OpcodeComputer {
     }
 
     fn get_value(&self, address: usize) -> isize {
-       if self.extended_memory_address(address) {
+        if self.extended_memory_address(address) {
             self.extended_memory.get(&address).unwrap_or(&0).clone()
-        } else{
+        } else {
             self.instructions[address]
         }
     }
@@ -136,7 +136,7 @@ impl OpcodeComputer {
     fn set_value(&mut self, address: usize, value: isize) {
         if self.extended_memory_address(address) {
             self.extended_memory.insert(address, value);
-        } else{
+        } else {
             self.instructions[address] = value;
         }
     }
@@ -362,7 +362,9 @@ mod tests {
 
     #[test]
     fn produce_copy_of_the_input() {
-        let input = vec![109,1,204,-1,1001,100,1,100,1008,100,16,101,1006,101,0,99];
+        let input = vec![
+            109, 1, 204, -1, 1001, 100, 1, 100, 1008, 100, 16, 101, 1006, 101, 0, 99,
+        ];
         let mut computer = OpcodeComputer::new(&input);
         computer.run();
 
@@ -371,7 +373,7 @@ mod tests {
 
     #[test]
     fn outputs_16_digit_number() {
-        let input = vec![1102,34915192,34915192,7,4,7,99,0];
+        let input = vec![1102, 34915192, 34915192, 7, 4, 7, 99, 0];
         let mut computer = OpcodeComputer::new(&input);
         computer.run();
 
@@ -380,7 +382,7 @@ mod tests {
 
     #[test]
     fn outputs_number_from_the_program() {
-        let input = vec![104,1125899906842624,99];
+        let input = vec![104, 1125899906842624, 99];
         let mut computer = OpcodeComputer::new(&input);
         computer.run();
 
