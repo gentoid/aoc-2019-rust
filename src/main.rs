@@ -28,4 +28,5 @@ fn main() {
     println!("08 / 02:");
     println!("{:#?}", aoc_08::aoc_08_02());
     println!("09 / 01: {}", aoc_09::aoc_09_01());
+    println!("09 / 02: {}", aoc_09::aoc_09_02());
 }

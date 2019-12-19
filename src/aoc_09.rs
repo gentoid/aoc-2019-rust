@@ -15,3 +15,10 @@ pub fn aoc_09_01() -> isize {
     computer.run();
     computer.get_output().unwrap()
 }
+
+pub fn aoc_09_02() -> isize {
+    let mut computer = OpcodeComputer::new(&read_and_parse());
+    computer.add_input(&2);
+    computer.run();
+    computer.get_output().unwrap()
+}
