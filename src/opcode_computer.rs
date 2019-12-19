@@ -1,7 +1,10 @@
+use std::collections::HashMap;
+
 #[derive(Debug)]
 pub struct OpcodeComputer {
     instructions: Vec<isize>,
     instruction_pointer: usize,
+    extended_memory: HashMap<usize, isize>,
     pub state: ComputerState,
     input: Vec<isize>,
     pub output: Vec<isize>,
@@ -21,6 +24,7 @@ impl OpcodeComputer {
         Self {
             instructions: instructions.clone(),
             instruction_pointer: 0,
+            extended_memory: HashMap::new(),
             state: ComputerState::Initialized,
             input: vec![],
             output: vec![],
@@ -120,11 +124,23 @@ impl OpcodeComputer {
     }
 
     fn get_value(&self, address: usize) -> isize {
-        self.instructions[address]
+       if self.extended_memory_address(address) {
+            self.extended_memory.get(&address).unwrap_or(&0).clone()
+        } else{
+            self.instructions[address]
+        }
     }
 
     fn set_value(&mut self, address: usize, value: isize) {
-        self.instructions[address] = value;
+        if self.extended_memory_address(address) {
+            self.extended_memory.insert(address, value);
+        } else{
+            self.instructions[address] = value;
+        }
+    }
+
+    fn extended_memory_address(&self, address: usize) -> bool {
+        address >= self.instructions.len()
     }
 
     fn opcode_with_3_args(&mut self, params: &[Param; 3], f: fn(isize, isize) -> isize) {
@@ -339,5 +355,32 @@ mod tests {
         let mut program = OpcodeComputer::new(&vec![3, 3, 1107, -1, 8, 3, 4, 3, 99]);
         program.add_input(&10).run();
         assert_eq!(program.get_output(), Some(0));
+    }
+
+    #[test]
+    fn produce_copy_of_the_input() {
+        let input = vec![109,1,204,-1,1001,100,1,100,1008,100,16,101,1006,101,0,99];
+        let mut computer = OpcodeComputer::new(&input);
+        computer.run();
+
+        assert_eq!(computer.output, input);
+    }
+
+    #[test]
+    fn outputs_16_digit_number() {
+        let input = vec![1102,34915192,34915192,7,4,7,99,0];
+        let mut computer = OpcodeComputer::new(&input);
+        computer.run();
+
+        assert_eq!(computer.get_output(), Some(1219070632396864));
+    }
+
+    #[test]
+    fn outputs_number_from_the_program() {
+        let input = vec![104,1125899906842624,99];
+        let mut computer = OpcodeComputer::new(&input);
+        computer.run();
+
+        assert_eq!(computer.get_output(), Some(1125899906842624));
     }
 }
