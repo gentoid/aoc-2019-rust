@@ -10,6 +10,7 @@ pub struct OpcodeComputer {
     pub output: Vec<isize>,
     relative_base: isize,
     debug: bool,
+    name: Option<String>,
 }
 
 #[derive(Debug, PartialEq)]
@@ -31,7 +32,12 @@ impl OpcodeComputer {
             output: vec![],
             relative_base: 0,
             debug: false,
+            name: None,
         }
+    }
+
+    pub fn set_name(&mut self, name: &str) {
+        self.name = Some(name.into());
     }
 
     pub fn add_input(&mut self, input: &isize) -> &mut Self {
