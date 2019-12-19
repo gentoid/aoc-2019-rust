@@ -51,8 +51,8 @@ impl OpcodeComputer {
     pub fn run(&mut self) -> isize {
         use ComputerState::*;
 
-        self.state = Running;
         if let WaitingForInput(param) = self.state {
+            self.state = Running;
             self.take_input(&param);
         }
 
