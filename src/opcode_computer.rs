@@ -100,12 +100,12 @@ impl OpcodeComputer {
             Output(param) => self.put_output(self.value_for_param(&param)),
             JmpIfTrue(params) => {
                 if self.value_for_param(&params[0]) != 0 {
-                    self.instruction_pointer = self.value_for_param(&params[1]) as usize;
+                    self.set_pointer(self.value_for_param(&params[1]) as usize);
                 }
             }
             JmpIfFalse(params) => {
                 if self.value_for_param(&params[0]) == 0 {
-                    self.instruction_pointer = self.value_for_param(&params[1]) as usize;
+                    self.set_pointer(self.value_for_param(&params[1]) as usize);
                 }
             }
             LessThan(params) => {
@@ -137,6 +137,13 @@ impl OpcodeComputer {
             println!("");
             sleep(Duration::from_millis(2000 as u64));
         }
+    }
+
+    fn set_pointer(&mut self, address: usize) {
+        if self.debug {
+            println!("Setting pointer to {}", address);
+        }
+        self.instruction_pointer = address;
     }
 
     fn value_for_param(&self, param: &Param) -> isize {
