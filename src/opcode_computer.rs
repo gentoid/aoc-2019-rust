@@ -69,7 +69,7 @@ impl OpcodeComputer {
     }
 
     fn get(&mut self) -> isize {
-        let result = self.instructions[self.instruction_pointer];
+        let result = self.get_value(self.instruction_pointer);
         self.instruction_pointer += 1;
         result
     }
@@ -81,29 +81,29 @@ impl OpcodeComputer {
             OC01(params) => self.opcode_with_3_args(&params, |a, b| a + b),
             OC02(params) => self.opcode_with_3_args(&params, |a, b| a * b),
             OC03(param) => self.take_input(&param),
-            OC04(param) => self.put_output(self.value_for(&param)),
+            OC04(param) => self.put_output(self.value_for_param(&param)),
             OC05(params) => {
-                if self.value_for(&params[0]) != 0 {
-                    self.instruction_pointer = self.value_for(&params[1]) as usize;
+                if self.value_for_param(&params[0]) != 0 {
+                    self.instruction_pointer = self.value_for_param(&params[1]) as usize;
                 }
             }
             OC06(params) => {
-                if self.value_for(&params[0]) == 0 {
-                    self.instruction_pointer = self.value_for(&params[1]) as usize;
+                if self.value_for_param(&params[0]) == 0 {
+                    self.instruction_pointer = self.value_for_param(&params[1]) as usize;
                 }
             }
             OC07(params) => {
-                if self.value_for(&params[0]) < self.value_for(&params[1]) {
-                    self.set_value(&params[2], 1)
+                if self.value_for_param(&params[0]) < self.value_for_param(&params[1]) {
+                    self.set_value_from_param(&params[2], 1)
                 } else {
-                    self.set_value(&params[2], 0)
+                    self.set_value_from_param(&params[2], 0)
                 }
             }
             OC08(params) => {
-                if self.value_for(&params[0]) == self.value_for(&params[1]) {
-                    self.set_value(&params[2], 1)
+                if self.value_for_param(&params[0]) == self.value_for_param(&params[1]) {
+                    self.set_value_from_param(&params[2], 1)
                 } else {
-                    self.set_value(&params[2], 0)
+                    self.set_value_from_param(&params[2], 0)
                 }
             }
             OC09(param) => self.relative_base += param.value,
@@ -111,27 +111,35 @@ impl OpcodeComputer {
         }
     }
 
-    fn value_for(&self, param: &Param) -> isize {
+    fn value_for_param(&self, param: &Param) -> isize {
         match param.mode {
-            ParamMode::Positional => self.instructions[param.value as usize],
+            ParamMode::Positional => self.get_value(param.value as usize),
             ParamMode::Immidiate => param.value,
-            ParamMode::Relative => self.instructions[(param.value + self.relative_base) as usize],
+            ParamMode::Relative => self.get_value((param.value + self.relative_base) as usize),
         }
+    }
+
+    fn get_value(&self, address: usize) -> isize {
+        self.instructions[address]
+    }
+
+    fn set_value(&mut self, address: usize, value: isize) {
+        self.instructions[address] = value;
     }
 
     fn opcode_with_3_args(&mut self, params: &[Param; 3], f: fn(isize, isize) -> isize) {
         let [p1, p2, p3] = params;
-        let val1 = self.value_for(&p1);
-        let val2 = self.value_for(&p2);
-        self.set_value(&p3, f(val1, val2));
+        let val1 = self.value_for_param(&p1);
+        let val2 = self.value_for_param(&p2);
+        self.set_value_from_param(&p3, f(val1, val2));
     }
 
-    fn set_value(&mut self, param: &Param, value: isize) {
+    fn set_value_from_param(&mut self, param: &Param, value: isize) {
         match param.mode {
-            ParamMode::Positional => self.instructions[param.value as usize] = value,
+            ParamMode::Positional => self.set_value(param.value as usize, value),
             ParamMode::Immidiate => panic!("It's impossible to use immidiate mode to set value"),
             ParamMode::Relative => {
-                self.instructions[(param.value + self.relative_base) as usize] = value
+                self.set_value((param.value + self.relative_base) as usize, value);
             }
         }
     }
@@ -142,7 +150,7 @@ impl OpcodeComputer {
             return;
         }
         let input = self.input.remove(0);
-        self.set_value(&param, input);
+        self.set_value_from_param(&param, input);
     }
 
     fn put_output(&mut self, value: isize) {
