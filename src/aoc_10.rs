@@ -99,30 +99,19 @@ struct DeltaIter {
 
 impl DeltaIter {
     pub fn new(delta: &Delta) -> Self {
-        if delta.x == 0 {
-            let factor = delta.y;
-            let delta = Delta::new(0, 1);
-            Self {
-                factor,
-                delta,
-                current: delta.clone(),
-            }
+        let (factor, delta) = if delta.x == 0 {
+            (delta.y, Delta::new(0, 1))
         } else if delta.y == 0 {
-            let factor = delta.x;
-            let delta = Delta::new(1, 0);
-            Self {
-                factor,
-                delta,
-                current: delta.clone(),
-            }
+            (delta.x, Delta::new(1, 0))
         } else {
             let factor = gcd(delta.x, delta.y);
-            let delta = *delta / factor;
-            Self {
-                factor,
-                delta,
-                current: delta.clone(),
-            }
+            (factor, *delta / factor)
+        };
+
+        Self {
+            factor,
+            delta,
+            current: delta.clone(),
         }
     }
 }
