@@ -8,7 +8,7 @@ use {
 
 pub fn aoc_10_01() -> Coord {
     let input = vec![".#..#", ".....", "#####", "....#", "...##"];
-    find_best_asteroid(&input)
+    find_best_asteroid(&input).0
 }
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
@@ -131,7 +131,7 @@ impl Iterator for DeltaIter {
     }
 }
 
-fn find_best_asteroid(input: &Vec<&str>) -> Coord {
+fn find_best_asteroid(input: &Vec<&str>) -> (Coord, usize) {
     let map = parse_map(&input);
 
     let mut max_seen = 0;
@@ -146,7 +146,7 @@ fn find_best_asteroid(input: &Vec<&str>) -> Coord {
         }
     }
 
-    best_asteroid
+    (best_asteroid, max_seen)
 }
 
 fn parse_map(input: &Vec<&str>) -> Map {
@@ -217,7 +217,85 @@ mod tests {
     #[test]
     fn finds_the_best_asteroid_on_tiny_map() {
         let input = vec![".#..#", ".....", "#####", "....#", "...##"];
-        assert_eq!(Coord::new(3, 4), find_best_asteroid(&input));
+        assert_eq!((Coord::new(3, 4), 8), find_best_asteroid(&input));
+    }
+
+    #[test]
+    fn finds_the_best_asteroid_on_1st_mid_map() {
+        let input = vec![
+            "......#.#.",
+            "#..#.#....",
+            "..#######.",
+            ".#.#.###..",
+            ".#..#.....",
+            "..#....#.#",
+            "#..#....#.",
+            ".##.#..###",
+            "##...#..#.",
+            ".#....####",
+        ];
+        assert_eq!((Coord::new(5, 8), 33), find_best_asteroid(&input));
+    }
+
+    #[test]
+    fn finds_the_best_asteroid_on_2nd_mid_map() {
+        let input = vec![
+            "#.#...#.#.",
+            ".###....#.",
+            ".#....#...",
+            "##.#.#.#.#",
+            "....#.#.#.",
+            ".##..###.#",
+            "..#...##..",
+            "..##....##",
+            "......#...",
+            ".####.###.",
+        ];
+        assert_eq!((Coord::new(1, 2), 35), find_best_asteroid(&input));
+    }
+
+    #[test]
+    fn finds_the_best_asteroid_on_3rt_mid_map() {
+        let input = vec![
+            ".#..#..###",
+            "####.###.#",
+            "....###.#.",
+            "..###.##.#",
+            "##.##.#.#.",
+            "....###..#",
+            "..#.#..#.#",
+            "#..#.#.###",
+            ".##...##.#",
+            ".....#.#..",
+        ];
+        assert_eq!((Coord::new(6, 3), 41), find_best_asteroid(&input));
+    }
+
+    #[test]
+    fn finds_the_best_asteroid_on_big_map() {
+        let input = vec![
+            ".#..##.###...#######",
+            "##.############..##.",
+            ".#.######.########.#",
+            ".###.#######.####.#.",
+            "#####.##.#.##.###.##",
+            "..#####..#.#########",
+            "####################",
+            "#.####....###.#.#.##",
+            "##.#################",
+            "#####.##.###..####..",
+            "..######..##.#######",
+            "####.##.####...##..#",
+            ".#####..#.######.###",
+            "##...#.##########...",
+            "#.##########.#######",
+            ".####.#.###.###.#.##",
+            "....##.##.###..#####",
+            ".#.#.###########.###",
+            "#.#.#.#####.####.###",
+            "###.##.####.##.#..##",
+        ];
+        assert_eq!((Coord::new(11, 13), 210), find_best_asteroid(&input));
     }
 
     #[test]
