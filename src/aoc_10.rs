@@ -204,9 +204,7 @@ fn find_covered(map: &Map, coord: &Coord, test_coord: &Coord) -> HashSet<Coord> 
             continue;
         }
 
-        map.asteroids.get(&check).map(|_| {
-            covered.insert(check)
-        });
+        map.asteroids.get(&check).map(|_| covered.insert(check));
     }
 
     covered
@@ -224,7 +222,7 @@ mod tests {
 
     #[test]
     fn correctly_generates_diagonal_deltas() {
-        let base_delta = Delta ::new(6, 12);
+        let base_delta = Delta::new(6, 12);
         let deltas: Vec<Delta> = DeltaIter::new(&base_delta).into_iter().take(3).collect();
         let expect_deltas = vec![Delta::new(6, 12), Delta::new(7, 14), Delta::new(8, 16)];
         assert_eq!(expect_deltas, deltas);
@@ -232,7 +230,7 @@ mod tests {
 
     #[test]
     fn correctly_generates_negative_diagonal_deltas() {
-        let base_delta = Delta ::new(-4, 2);
+        let base_delta = Delta::new(-4, 2);
         let deltas: Vec<Delta> = DeltaIter::new(&base_delta).into_iter().take(3).collect();
         let expect_deltas = vec![Delta::new(-4, 2), Delta::new(-6, 3), Delta::new(-8, 4)];
         assert_eq!(expect_deltas, deltas);
@@ -240,7 +238,7 @@ mod tests {
 
     #[test]
     fn correctly_generates_negative_horizontal() {
-        let base_delta = Delta ::new(-79, 0);
+        let base_delta = Delta::new(-79, 0);
         let deltas: Vec<Delta> = DeltaIter::new(&base_delta).into_iter().take(3).collect();
         let expect_deltas = vec![Delta::new(-79, 0), Delta::new(-80, 0), Delta::new(-81, 0)];
         assert_eq!(expect_deltas, deltas);
@@ -248,7 +246,7 @@ mod tests {
 
     #[test]
     fn correctly_generates_positive_horizontal() {
-        let base_delta = Delta ::new(5, 0);
+        let base_delta = Delta::new(5, 0);
         let deltas: Vec<Delta> = DeltaIter::new(&base_delta).into_iter().take(3).collect();
         let expect_deltas = vec![Delta::new(5, 0), Delta::new(6, 0), Delta::new(7, 0)];
         assert_eq!(expect_deltas, deltas);
@@ -256,7 +254,7 @@ mod tests {
 
     #[test]
     fn correctly_generates_negative_vertical() {
-        let base_delta = Delta ::new(0, -79);
+        let base_delta = Delta::new(0, -79);
         let deltas: Vec<Delta> = DeltaIter::new(&base_delta).into_iter().take(3).collect();
         let expect_deltas = vec![Delta::new(0, -79), Delta::new(0, -80), Delta::new(0, -81)];
         assert_eq!(expect_deltas, deltas);
@@ -264,7 +262,7 @@ mod tests {
 
     #[test]
     fn correctly_generates_positive_vertical() {
-        let base_delta = Delta ::new(0, 5);
+        let base_delta = Delta::new(0, 5);
         let deltas: Vec<Delta> = DeltaIter::new(&base_delta).into_iter().take(3).collect();
         let expect_deltas = vec![Delta::new(0, 5), Delta::new(0, 6), Delta::new(0, 7)];
         assert_eq!(expect_deltas, deltas);
