@@ -148,7 +148,7 @@ fn find_best_asteroid(input: &Vec<&str>) -> (Coord, usize) {
     let mut best_asteroid = Coord::new(0, 0);
 
     for asteroid in map.asteroids.iter() {
-        let seen = how_much_asteroids_seen(&map, &asteroid);
+        let seen = seen_asteroids(&map, &asteroid);
 
         if seen.len() > max_seen.len() {
             max_seen = seen;
@@ -177,7 +177,7 @@ fn parse_map(input: &Vec<&str>) -> Map {
     }
 }
 
-fn how_much_asteroids_seen(map: &Map, coord: &Coord) -> Vec<Coord> {
+fn seen_asteroids(map: &Map, coord: &Coord) -> Vec<Coord> {
     let mut covered: HashSet<Coord> = HashSet::new();
 
     for test_coord in map.asteroids.iter() {
