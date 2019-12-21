@@ -2,13 +2,23 @@ use {
     num_integer::gcd,
     std::{
         collections::{HashMap, HashSet},
+        fs::File,
+        io::{BufRead, BufReader},
         ops::{Div, Mul},
     },
 };
 
-pub fn aoc_10_01() -> Coord {
-    let input = vec![".#..#", ".....", "#####", "....#", "...##"];
-    find_best_asteroid(&input).0
+fn read_lines() -> Vec<String> {
+    let file = File::open("inputs/input-10.txt").unwrap();
+    let reader = BufReader::new(file);
+
+    reader.lines().map(|l| l.unwrap()).collect()
+}
+
+pub fn aoc_10_01() -> (Coord, usize) {
+    let lines = read_lines();
+    let input = lines.iter().map(String::as_ref).collect();
+    find_best_asteroid(&input)
 }
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
