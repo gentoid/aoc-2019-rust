@@ -55,7 +55,7 @@ impl Coord {
 struct Map {
     width: usize,
     height: usize,
-    asteroids: HashMap<Coord, ()>,
+    asteroids: HashSet<Coord>,
 }
 
 impl Map {
@@ -144,28 +144,28 @@ impl Iterator for DeltaIter {
 fn find_best_asteroid(input: &Vec<&str>) -> (Coord, usize) {
     let map = parse_map(&input);
 
-    let mut max_seen = 0;
+    let mut max_seen = vec![];
     let mut best_asteroid = Coord::new(0, 0);
 
-    for asteroid in map.asteroids.keys() {
+    for asteroid in map.asteroids.iter() {
         let seen = how_much_asteroids_seen(&map, &asteroid);
 
-        if seen > max_seen {
+        if seen.len() > max_seen.len() {
             max_seen = seen;
             best_asteroid = asteroid.clone();
         }
     }
 
-    (best_asteroid, max_seen)
+    (best_asteroid, max_seen.len())
 }
 
 fn parse_map(input: &Vec<&str>) -> Map {
-    let mut asteroids = HashMap::new();
+    let mut asteroids = HashSet::new();
 
     for (y, line) in input.iter().enumerate() {
         for (x, ch) in line.chars().enumerate() {
             if ch == '#' {
-                asteroids.insert(Coord::new(x as isize, y as isize), ());
+                asteroids.insert(Coord::new(x as isize, y as isize));
             }
         }
     }
@@ -177,10 +177,10 @@ fn parse_map(input: &Vec<&str>) -> Map {
     }
 }
 
-fn how_much_asteroids_seen(map: &Map, coord: &Coord) -> usize {
+fn how_much_asteroids_seen(map: &Map, coord: &Coord) -> Vec<Coord> {
     let mut covered: HashSet<Coord> = HashSet::new();
 
-    for test_coord in map.asteroids.keys() {
+    for test_coord in map.asteroids.iter() {
         if coord == test_coord {
             continue;
         }
@@ -188,7 +188,11 @@ fn how_much_asteroids_seen(map: &Map, coord: &Coord) -> usize {
         covered.extend(&find_covered(&map, &coord, &test_coord));
     }
 
-    map.asteroids.len() - covered.len() - 1
+    map.asteroids
+        .difference(&covered)
+        .into_iter()
+        .map(|a| a.clone())
+        .collect()
 }
 
 fn find_covered(map: &Map, coord: &Coord, test_coord: &Coord) -> HashSet<Coord> {
