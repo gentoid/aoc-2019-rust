@@ -21,6 +21,38 @@ pub fn aoc_11_01() -> usize {
     robot.map.len()
 }
 
+pub fn aoc_11_02() -> Vec<String>  {
+    let program = read_and_parse();
+    let mut robot = PaintingRobot::new(&program, &(0, 0), Color::White);
+    while !robot.done() {
+        robot.next();
+    }
+
+    let mut x_min = 0;
+    let mut x_max = 0;
+    let mut y_min = 0;
+    let mut y_max = 0;
+    
+    for ((x, y), _) in robot.map.clone() {
+        x_min = isize::min(x, x_min);
+        x_max = isize::max(x, x_max);
+        y_min= isize::min(y, y_min);
+        y_max=isize::max(y, y_max);
+    }
+
+    let mut lines = vec![];
+
+    for y in y_min..=y_max {
+        let mut line = "".to_owned();
+        for x in x_min..=x_max {
+            line.push(robot.map.get(&(x, y)).unwrap_or(&Color::Black).to_char());
+        }
+        lines.push(line);
+    }
+
+    lines
+}
+
 enum Direction {
     Up,
     Right,
@@ -71,7 +103,8 @@ impl Direction {
     }
 }
 
-enum Color {
+#[derive(Clone, Copy, Debug)]
+pub enum Color {
     Black,
     White,
 }
@@ -90,6 +123,13 @@ impl Color {
             1 => Color::White,
             _ => unreachable!(),
         }
+    }
+
+    fn to_char(&self) -> char {
+        match  self {
+            Color::Black => ' ',
+            Color::White => '#',
+        }.into()
     }
 }
 
