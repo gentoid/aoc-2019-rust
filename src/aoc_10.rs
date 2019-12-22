@@ -252,7 +252,7 @@ fn find_200th_vaporized_asteroid(input: &Vec<&str>, station: &Coord) -> Coord {
     let map = parse_map(&input);
     let nth_asteroid = 200;
 
-    let mut vaporized= HashSet::new();
+    let mut vaporized = HashSet::new();
     let mut seen = HashSet::new();
 
     loop {
@@ -509,6 +509,9 @@ mod tests {
             "#.#.#.#####.####.###",
             "###.##.####.##.#..##",
         ];
-        assert_eq!(Coord::new(8, 2), find_200th_vaporized_asteroid(&input, &Coord::new(11, 13)));
+        assert_eq!(
+            Coord::new(8, 2),
+            find_200th_vaporized_asteroid(&input, &Coord::new(11, 13))
+        );
     }
 }
