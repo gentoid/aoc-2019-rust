@@ -1,5 +1,43 @@
+use std::{
+    fs::File,
+    io::{BufRead, BufReader},
+};
+
+fn read_lines() -> Vec<String> {
+    let file = File::open("inputs/input-12.txt").unwrap();
+    let reader = BufReader::new(file);
+
+    reader.lines().map(|l| l.unwrap()).collect()
+}
+
+fn parse_line(line: &str) -> Moon {
+    let coord: Vec<isize> = line
+        .to_owned()
+        .replace("<", "")
+        .replace(">", "")
+        .replace("x=", "")
+        .replace("y=", "")
+        .replace("z=", "")
+        .split(",")
+        .into_iter()
+        .map(|l| isize::from_str_radix(l.trim().as_ref(), 10).unwrap())
+        .collect();
+
+    Moon {
+        coord: [coord[0], coord[1], coord[2]],
+        velocity: [0, 0, 0],
+    }
+}
+
+fn prepare_input() -> Vec<Moon> {
+    read_lines()
+        .iter()
+        .map(|l| parse_line(l.as_ref()))
+        .collect()
+}
+
 pub fn aoc_12_01() -> isize {
-    let mut moons = vec![];
+    let mut moons = prepare_input();
 
     for _ in 0..1000 {
         moons = update_positions(&calculate_velocity(moons));
@@ -48,7 +86,7 @@ fn update_positions(moons: &Vec<Moon>) -> Vec<Moon> {
     for moon in moons {
         let mut moon = moon.clone();
         update_position(&mut moon);
-
+        new_moons.push(moon);
     }
 
     new_moons
