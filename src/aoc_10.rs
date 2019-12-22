@@ -53,14 +53,11 @@ impl Coord {
     }
 
     pub fn angle_rad(&self, other: &Self) -> f64 {
-        let start_point = self.with_delta(&Delta::new(0, 1));
-        let dist_a = self.square_distance(&start_point);
-        let dist_b = self.square_distance(&other);
-        let dist_c = start_point.square_distance(&other);
+        let delta_orig = Delta::new(0, 1);
+        let delta_other = self.delta(&other);
+        let radians = f64::atan2(delta_orig.y as f64, delta_orig.x as f64)
+            - f64::atan2(delta_other.y as f64, delta_other.x as f64);
 
-        let radians = f64::acos(
-            (dist_a + dist_b - dist_c) as f64 / (2.0 * f64::sqrt((dist_a * dist_b) as f64)),
-        );
         if radians < 0.0 {
             radians + 2.0 * PI
         } else {
@@ -448,5 +445,24 @@ mod tests {
         let diff = station.angle_rad(&asteroid) - 3.0 * FRAC_PI_2;
 
         assert!(diff < 1e-10);
+    }
+
+    #[test]
+    fn correctly_sorts_asteroids() {
+        let station = Coord::new(4, 5);
+        let asteroids = vec![
+            Coord::new(0, 0),
+            Coord::new(7, 3),
+            Coord::new(10, 5),
+            Coord::new(2, 9),
+        ];
+        let expected_order = vec![
+            Coord::new(10, 5),
+            Coord::new(7, 3),
+            Coord::new(0, 0),
+            Coord::new(2, 9),
+        ];
+
+        assert_eq!(sort_clockwise(&asteroids, &station), expected_order);
     }
 }
