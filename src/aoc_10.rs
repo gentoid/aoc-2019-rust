@@ -53,10 +53,10 @@ impl Coord {
     }
 
     pub fn angle_rad(&self, other: &Self) -> f64 {
-        let delta_orig = Delta::new(0, 1);
+        let delta_orig = Delta::new(0, -1);
         let delta_other = self.delta(&other);
-        let radians = f64::atan2(delta_orig.y as f64, delta_orig.x as f64)
-            - f64::atan2(delta_other.y as f64, delta_other.x as f64);
+        let radians = f64::atan2(delta_other.y as f64, delta_other.x as f64)
+            - f64::atan2(delta_orig.y as f64, delta_orig.x as f64);
 
         if radians < 0.0 {
             radians + 2.0 * PI
@@ -416,7 +416,7 @@ mod tests {
     #[test]
     fn calculates_zero_angle() {
         let station = Coord::new(5, 8);
-        let asteroid = Coord::new(5, 10);
+        let asteroid = Coord::new(5, 6);
 
         let diff = station.angle_rad(&asteroid);
 
@@ -436,9 +436,11 @@ mod tests {
     #[test]
     fn calculates_pi_angle() {
         let station = Coord::new(5, 8);
-        let asteroid = Coord::new(5, 1);
+        let asteroid = Coord::new(5, 10);
 
         let diff = station.angle_rad(&asteroid) - PI;
+        println!("Angle: {}", station.angle_rad(&asteroid));
+        println!("Diff: {}", diff);
 
         assert!(diff < 1e-10);
     }
@@ -467,10 +469,10 @@ mod tests {
             asteroids_hash.insert(asteroid);
         }
         let expected_order = vec![
-            Coord::new(10, 5),
             Coord::new(7, 3),
-            Coord::new(0, 0),
+            Coord::new(10, 5),
             Coord::new(2, 9),
+            Coord::new(0, 0),
         ];
 
         assert_eq!(sort_clockwise(&asteroids_hash, &station), expected_order);
