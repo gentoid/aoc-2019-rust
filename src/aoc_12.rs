@@ -1,3 +1,13 @@
+pub fn aoc_12_01() -> isize {
+    let mut moons = vec![];
+
+    for _ in 0..1000 {
+        moons = update_positions(&calculate_velocity(moons));
+    }
+
+    moons.iter().map(|moon| moon.energy()).sum()
+}
+
 #[derive(Clone, Copy, Debug, PartialEq)]
 struct Moon {
     coord: [isize; 3],
