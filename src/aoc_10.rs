@@ -158,7 +158,7 @@ impl Iterator for DeltaIter {
 fn find_best_asteroid(input: &Vec<&str>) -> (Coord, usize) {
     let map = parse_map(&input);
 
-    let mut max_seen = vec![];
+    let mut max_seen = HashSet::new();
     let mut best_asteroid = Coord::new(0, 0);
 
     for asteroid in map.asteroids.iter() {
@@ -191,7 +191,7 @@ fn parse_map(input: &Vec<&str>) -> Map {
     }
 }
 
-fn seen_asteroids(map: &Map, coord: &Coord) -> Vec<Coord> {
+fn seen_asteroids(map: &Map, coord: &Coord) -> HashSet<Coord> {
     let mut covered: HashSet<Coord> = HashSet::new();
 
     for test_coord in map.asteroids.iter() {
@@ -241,28 +241,31 @@ fn find_covered(map: &Map, coord: &Coord, test_coord: &Coord) -> HashSet<Coord> 
     covered
 }
 
-fn find_200th_vaporized_asteroid(input: &Vec<&str>) -> Coord {
+fn find_200th_vaporized_asteroid(input: &Vec<&str>, station: &Coord) -> Coord {
     let map = parse_map(&input);
-    let station = Coord::new(23, 19);
     let nth_asteroid = 200;
 
-    let mut vaporized = vec![];
-    let mut seen = vec![];
+    let mut vaporized= HashSet::new();
+    let mut seen = HashSet::new();
 
     loop {
         seen = seen_asteroids(&map, &station);
         if vaporized.len() + seen.len() < 200 {
-            vaporized.append(&mut seen);
+            for asteroid in seen {
+                if !vaporized.contains(&asteroid) {
+                    vaporized.insert(asteroid);
+                }
+            }
         } else {
             break;
         }
     }
 
-    sort_clockwise(&mut seen, &station);
-    seen[nth_asteroid - vaporized.len() - 1]
+    let sorted = sort_clockwise(&seen, &station);
+    sorted[nth_asteroid - vaporized.len() - 1]
 }
 
-fn sort_clockwise(asteroids: &Vec<Coord>, station: &Coord) -> Vec<Coord> {
+fn sort_clockwise(asteroids: &HashSet<Coord>, station: &Coord) -> Vec<Coord> {
     let mut with_angles = vec![];
 
     for a in asteroids {
@@ -459,6 +462,10 @@ mod tests {
             Coord::new(10, 5),
             Coord::new(2, 9),
         ];
+        let mut asteroids_hash = HashSet::new();
+        for asteroid in asteroids {
+            asteroids_hash.insert(asteroid);
+        }
         let expected_order = vec![
             Coord::new(10, 5),
             Coord::new(7, 3),
@@ -466,6 +473,33 @@ mod tests {
             Coord::new(2, 9),
         ];
 
-        assert_eq!(sort_clockwise(&asteroids, &station), expected_order);
+        assert_eq!(sort_clockwise(&asteroids_hash, &station), expected_order);
+    }
+
+    #[test]
+    fn finds_200th_asteroid_on_big_map() {
+        let input = vec![
+            ".#..##.###...#######",
+            "##.############..##.",
+            ".#.######.########.#",
+            ".###.#######.####.#.",
+            "#####.##.#.##.###.##",
+            "..#####..#.#########",
+            "####################",
+            "#.####....###.#.#.##",
+            "##.#################",
+            "#####.##.###..####..",
+            "..######..##.#######",
+            "####.##.####...##..#",
+            ".#####..#.######.###",
+            "##...#.##########...",
+            "#.##########.#######",
+            ".####.#.###.###.#.##",
+            "....##.##.###..#####",
+            ".#.#.###########.###",
+            "#.#.#.#####.####.###",
+            "###.##.####.##.#..##",
+        ];
+        assert_eq!(Coord::new(8, 2), find_200th_vaporized_asteroid(&input, &Coord::new(11, 13)));
     }
 }
