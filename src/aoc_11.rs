@@ -12,13 +12,13 @@ fn read_and_parse() -> Vec<isize> {
         .collect()
 }
 
-pub fn aoc_11_01() -> isize {
+pub fn aoc_11_01() -> usize {
     let program = read_and_parse();
     let mut robot = PaintingRobot::new(&program, &(0, 0), Color::Black);
     while !robot.done() {
         robot.next();
     }
-    0
+    robot.map.len()
 }
 
 enum Direction {
