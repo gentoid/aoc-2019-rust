@@ -124,7 +124,7 @@ impl PaintingRobot {
         let coordinate = direction.next_coordinate(&self.coordinate);
 
         self.direction = direction;
-        self.map.insert(coordinate, color);
+        self.map.insert(self.coordinate, color);
         self.coordinate = coordinate;
     }
 
