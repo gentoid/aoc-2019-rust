@@ -2,6 +2,7 @@ use {
     num_integer::gcd,
     std::{
         collections::{HashMap, HashSet},
+        f64::consts::{FRAC_PI_2, PI},
         fs::File,
         io::{BufRead, BufReader},
         ops::{Div, Mul},
@@ -51,13 +52,20 @@ impl Coord {
         delta.x.pow(2) + delta.y.pow(2)
     }
 
-    pub fn angle(&self, other: &Self) -> f64 {
+    pub fn angle_rad(&self, other: &Self) -> f64 {
         let start_point = self.with_delta(&Delta::new(0, 1));
         let dist_a = self.square_distance(&start_point);
         let dist_b = self.square_distance(&other);
         let dist_c = start_point.square_distance(&other);
 
-        f64::acos((dist_a + dist_b - dist_c) as f64 / (2.0 * f64::sqrt((dist_a*dist_b) as f64)))
+        let radians = f64::acos(
+            (dist_a + dist_b - dist_c) as f64 / (2.0 * f64::sqrt((dist_a * dist_b) as f64)),
+        );
+        if radians < 0.0 {
+            radians + 2.0 * PI
+        } else {
+            radians
+        }
     }
 }
 
@@ -258,7 +266,7 @@ fn sort_clockwise(asteroids: &Vec<Coord>, station: &Coord) -> Vec<Coord> {
     let mut with_angles = vec![];
 
     for a in asteroids {
-        with_angles.push((*a, station.angle(a)));
+        with_angles.push((*a, station.angle_rad(a)));
     }
 
     with_angles.sort_by(|a, b| a.1.partial_cmp(&b.1).unwrap());
@@ -400,5 +408,45 @@ mod tests {
         let deltas: Vec<Delta> = DeltaIter::new(&base_delta).into_iter().take(3).collect();
         let expect_deltas = vec![Delta::new(0, 5), Delta::new(0, 6), Delta::new(0, 7)];
         assert_eq!(expect_deltas, deltas);
+    }
+
+    #[test]
+    fn calculates_zero_angle() {
+        let station = Coord::new(5, 8);
+        let asteroid = Coord::new(5, 10);
+
+        let diff = station.angle_rad(&asteroid);
+
+        assert!(diff < 1e-10);
+    }
+
+    #[test]
+    fn calculates_pi_2_angle() {
+        let station = Coord::new(5, 8);
+        let asteroid = Coord::new(10, 8);
+
+        let diff = station.angle_rad(&asteroid) - FRAC_PI_2;
+
+        assert!(diff < 1e-10);
+    }
+
+    #[test]
+    fn calculates_pi_angle() {
+        let station = Coord::new(5, 8);
+        let asteroid = Coord::new(5, 1);
+
+        let diff = station.angle_rad(&asteroid) - PI;
+
+        assert!(diff < 1e-10);
+    }
+
+    #[test]
+    fn calculates_3_pi_2_angle() {
+        let station = Coord::new(5, 8);
+        let asteroid = Coord::new(0, 8);
+
+        let diff = station.angle_rad(&asteroid) - 3.0 * FRAC_PI_2;
+
+        assert!(diff < 1e-10);
     }
 }
