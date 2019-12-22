@@ -202,7 +202,10 @@ fn seen_asteroids(map: &Map, coord: &Coord) -> Vec<Coord> {
         covered.extend(&find_covered(&map, &coord, &test_coord));
     }
 
-    map.asteroids
+    let mut asteroids = map.asteroids.clone();
+    asteroids.remove(&coord);
+
+    asteroids
         .difference(&covered)
         .into_iter()
         .map(|a| a.clone())
