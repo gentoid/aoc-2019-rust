@@ -50,6 +50,15 @@ impl Coord {
         let delta = self.delta(&other);
         delta.x.pow(2) + delta.y.pow(2)
     }
+
+    pub fn angle(&self, other: &Self) -> f64 {
+        let start_point = self.with_delta(&Delta::new(0, 1));
+        let dist_a = self.square_distance(&start_point);
+        let dist_b = self.square_distance(&other);
+        let dist_c = start_point.square_distance(&other);
+
+        f64::acos((dist_a + dist_b - dist_c) as f64 / (2.0 * f64::sqrt((dist_a*dist_b) as f64)))
+    }
 }
 
 struct Map {
@@ -222,6 +231,39 @@ fn find_covered(map: &Map, coord: &Coord, test_coord: &Coord) -> HashSet<Coord> 
     }
 
     covered
+}
+
+fn find_200th_vaporized_asteroid(input: &Vec<&str>) -> Coord {
+    let map = parse_map(&input);
+    let station = Coord::new(23, 19);
+    let nth_asteroid = 200;
+
+    let mut vaporized = vec![];
+    let mut seen = vec![];
+
+    loop {
+        seen = seen_asteroids(&map, &station);
+        if vaporized.len() + seen.len() < 200 {
+            vaporized.append(&mut seen);
+        } else {
+            break;
+        }
+    }
+
+    sort_clockwise(&mut seen, &station);
+    seen[nth_asteroid - vaporized.len() - 1]
+}
+
+fn sort_clockwise(asteroids: &Vec<Coord>, station: &Coord) -> Vec<Coord> {
+    let mut with_angles = vec![];
+
+    for a in asteroids {
+        with_angles.push((*a, station.angle(a)));
+    }
+
+    with_angles.sort_by(|a, b| a.1.partial_cmp(&b.1).unwrap());
+
+    with_angles.into_iter().map(|(a, _)| a).collect()
 }
 
 #[cfg(test)]
