@@ -14,7 +14,7 @@ fn read_and_parse() -> Vec<isize> {
 
 pub fn aoc_11_01() -> isize {
     let program = read_and_parse();
-    let mut robot = PaintingRobot::new(&program, &(0, 0), &0);
+    let mut robot = PaintingRobot::new(&program, &(0, 0), Color::Black);
     while !robot.done() {
         robot.next();
     }
@@ -71,17 +71,39 @@ impl Direction {
     }
 }
 
+enum Color {
+    Black,
+    White,
+}
+
+impl Color {
+    fn to_int(&self) -> isize {
+        match self {
+            Color::Black => 0,
+            Color::White => 1,
+        }
+    }
+
+    fn from_int(int: &isize) -> Self {
+        match int {
+            0 => Color::Black,
+            1 => Color::White,
+            _ => unreachable!(),
+        }
+    }
+}
+
 struct PaintingRobot {
     direction: Direction,
     computer: OpcodeComputer,
-    map: HashMap<(isize, isize), isize>,
+    map: HashMap<(isize, isize), Color>,
     coordinate: (isize, isize),
 }
 
 impl PaintingRobot {
-    fn new(program: &Vec<isize>, coordinate: &(isize, isize), color: &isize) -> Self {
+    fn new(program: &Vec<isize>, coordinate: &(isize, isize), color: Color) -> Self {
         let mut map = HashMap::new();
-        map.insert(coordinate.clone(), color.clone());
+        map.insert(coordinate.clone(), color);
         let computer = OpcodeComputer::new(&program);
 
         Self {
@@ -93,11 +115,11 @@ impl PaintingRobot {
     }
 
     fn next(&mut self) {
-        let input_color = self.map.get(&self.coordinate).unwrap_or(&0);
-        self.computer.add_input(&input_color);
+        let input_color = self.map.get(&self.coordinate).unwrap_or(&Color::Black);
+        self.computer.add_input(&input_color.to_int());
         self.computer.run();
 
-        let color = self.computer.get_output().unwrap();
+        let color = Color::from_int(&self.computer.get_output().unwrap());
         let direction = self.direction.turn(&self.computer.get_output().unwrap());
         let coordinate = direction.next_coordinate(&self.coordinate);
 
