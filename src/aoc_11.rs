@@ -21,7 +21,7 @@ pub fn aoc_11_01() -> usize {
     robot.map.len()
 }
 
-pub fn aoc_11_02() -> Vec<String>  {
+pub fn aoc_11_02() -> Vec<String> {
     let program = read_and_parse();
     let mut robot = PaintingRobot::new(&program, &(0, 0), Color::White);
     while !robot.done() {
@@ -32,12 +32,12 @@ pub fn aoc_11_02() -> Vec<String>  {
     let mut x_max = 0;
     let mut y_min = 0;
     let mut y_max = 0;
-    
+
     for ((x, y), _) in robot.map.clone() {
         x_min = isize::min(x, x_min);
         x_max = isize::max(x, x_max);
-        y_min= isize::min(y, y_min);
-        y_max=isize::max(y, y_max);
+        y_min = isize::min(y, y_min);
+        y_max = isize::max(y, y_max);
     }
 
     let mut lines = vec![];
@@ -126,10 +126,11 @@ impl Color {
     }
 
     fn to_char(&self) -> char {
-        match  self {
+        match self {
             Color::Black => ' ',
             Color::White => '#',
-        }.into()
+        }
+        .into()
     }
 }
 
