@@ -23,10 +23,7 @@ fn parse_line(line: &str) -> Moon {
         .map(|l| isize::from_str_radix(l.trim().as_ref(), 10).unwrap())
         .collect();
 
-    Moon {
-        coord: [coord[0], coord[1], coord[2]],
-        velocity: [0, 0, 0],
-    }
+    Moon::new(coord[0], coord[1], coord[2])
 }
 
 fn prepare_input() -> Vec<Moon> {
@@ -53,6 +50,9 @@ struct Moon {
 }
 
 impl Moon {
+    fn new(x: isize, y: isize, z: isize) -> Self {
+        Self{coord:[x, y, z], velocity:[0,0,0]}
+    }
     fn energy(&self) -> isize {
         let mut result = 0;
 
