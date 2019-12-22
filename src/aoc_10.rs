@@ -22,6 +22,13 @@ pub fn aoc_10_01() -> (Coord, usize) {
     find_best_asteroid(&input)
 }
 
+pub fn aoc_10_02() -> Coord {
+    let lines = read_lines();
+    let input = lines.iter().map(String::as_ref).collect();
+    let station = Coord::new(23, 19);
+    find_200th_vaporized_asteroid(&input, &station)
+}
+
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub struct Coord {
     x: isize,
