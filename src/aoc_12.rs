@@ -4,6 +4,19 @@ struct Moon {
     velocity: [isize; 3],
 }
 
+impl Moon {
+    fn energy(&self) -> isize {
+        let mut result = 0;
+
+        for axis in 0..3 {
+            result += self.coord[axis].abs();
+            result += self.velocity[axis].abs();
+        }
+
+        result
+    }
+}
+
 fn update_velocity_for_pair(moon_1: &mut Moon, moon_2: &mut Moon) {
     for axis in 0..=2 {
         let val_1 = moon_1.coord[axis];
@@ -19,6 +32,18 @@ fn update_velocity_for_pair(moon_1: &mut Moon, moon_2: &mut Moon) {
     }
 }
 
+fn update_positions(moons: &Vec<Moon>) -> Vec<Moon> {
+    let mut new_moons = vec![];
+
+    for moon in moons {
+        let mut moon = moon.clone();
+        update_position(&mut moon);
+
+    }
+
+    new_moons
+}
+
 fn update_position(moon: &mut Moon) {
     for axis in 0..=2 {
         moon.coord[axis] += moon.velocity[axis];
@@ -28,7 +53,7 @@ fn update_position(moon: &mut Moon) {
 fn calculate_velocity(moons: Vec<Moon>) -> Vec<Moon> {
     let mut moons = moons;
 
-    for index_1 in 0..moons.len() - 1 {
+    for index_1 in 0..(moons.len() - 1) {
         for index_2 in (index_1 + 1)..moons.len() {
             let mut moon_1 = moons[index_1].clone();
             let mut moon_2 = moons[index_2].clone();
