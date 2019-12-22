@@ -192,4 +192,41 @@ mod tests {
             (moons[0], moons[1], moons[2])
         );
     }
+
+    #[test]
+    fn first_example() {
+    let moon1 = Moon::new(-1, 0, 2);
+    let moon2 = Moon::new(2, -10, -7);
+    let moon3 = Moon::new(4, -8, 8);
+    let moon4 = Moon::new(3, 5, -1);
+
+    let moons = vec![moon1, moon2, moon3, moon4];
+
+    let moons = update_positions(&calculate_velocity(moons));
+
+    let expect1 = Moon{coord:[2, -1, 1], velocity:[3, -1, -1]};
+    let expect2 = Moon{coord:[3, -7, -4], velocity:[1, 3, 3]};
+    let expect3 = Moon{coord:[1, -7, 5], velocity:[-3, 1, -3]};
+    let expect4 = Moon{coord:[2, 2, 0], velocity:[-1, -3, 1]};
+    let expect_moons = vec![expect1, expect2, expect3, expect4];
+    assert_eq!(expect_moons, moons);
+
+    // 2nd step
+
+    let moon1 = expect1;
+    let moon2 = expect2;
+    let moon3 = expect3;
+    let moon4 = expect4;
+
+    let moons = vec![moon1, moon2, moon3, moon4];
+
+    let moons = update_positions(&calculate_velocity(moons));
+
+    let expect1 = Moon{coord:[5, -3, -1], velocity:[0, -3, 0]};
+    let expect2 = Moon{coord:[1, -2, 2], velocity:[-2, 5, 6]};
+    let expect3 = Moon{coord:[1, -4, -1], velocity:[0, 3, -6]};
+    let expect4 = Moon{coord:[1, -4, 2], velocity:[-1, -6, 2]};
+    let expect_moons = vec![expect1, expect2, expect3, expect4];
+    assert_eq!(expect_moons, moons);
+    }
 }
