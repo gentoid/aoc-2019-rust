@@ -10,9 +10,8 @@ fn read_lines() -> Vec<String> {
     reader.lines().map(|l| l.unwrap()).collect()
 }
 
-fn parse_line(line: &str) -> Moon {
-    let coord: Vec<isize> = line
-        .to_owned()
+fn parse_line(line: &str) -> Vec<isize> {
+    line.to_owned()
         .replace("<", "")
         .replace(">", "")
         .replace("x=", "")
@@ -21,15 +20,16 @@ fn parse_line(line: &str) -> Moon {
         .split(",")
         .into_iter()
         .map(|l| isize::from_str_radix(l.trim().as_ref(), 10).unwrap())
-        .collect();
-
-    Moon::new(coord[0], coord[1], coord[2])
+        .collect()
 }
 
 fn prepare_input() -> Vec<Moon> {
     read_lines()
         .iter()
-        .map(|l| parse_line(l.as_ref()))
+        .map(|l| {
+            let line = parse_line(l.as_ref());
+            Moon::new(line[0], line[1], line[2])
+        })
         .collect()
 }
 
