@@ -1,6 +1,9 @@
-use std::{
-    fs::File,
-    io::{BufRead, BufReader},
+use {
+    num_integer::lcm,
+    std::{
+        fs::File,
+        io::{BufRead, BufReader},
+    },
 };
 
 fn read_lines() -> Vec<String> {
@@ -33,6 +36,20 @@ fn prepare_input() -> Vec<Moon> {
         .collect()
 }
 
+fn prepare_moon1d_input() -> Vec<Vec<Moon1D>> {
+    read_lines()
+        .iter()
+        .map(|l| {
+            let line = parse_line(l.as_ref());
+            vec![
+                Moon1D::new(line[0], 0),
+                Moon1D::new(line[1], 0),
+                Moon1D::new(line[2], 0),
+            ]
+        })
+        .collect()
+}
+
 pub fn aoc_12_01() -> isize {
     let mut input = prepare_input();
     let mut moons: Vec<&mut Moon> = vec![];
@@ -46,6 +63,50 @@ pub fn aoc_12_01() -> isize {
     }
 
     moons.iter().map(|moon| moon.energy()).sum()
+}
+
+pub fn aoc_12_02() -> usize {
+    let mut moons = prepare_moon1d_input();
+
+    let x_original = moons.clone().iter().map(|m| m[0]).collect();
+    let mut x_moons: Vec<&mut Moon1D> = moons.iter_mut().map(|m| &mut m[0]).collect();
+    let x_cycle = find_cycle(&mut x_moons, &x_original);
+
+    let y_original = moons.clone().iter().map(|m| m[1]).collect();
+    let mut y_moons: Vec<&mut Moon1D> = moons.iter_mut().map(|m| &mut m[1]).collect();
+    let y_cycle = find_cycle(&mut y_moons, &y_original);
+
+    let z_original = moons.clone().iter().map(|m| m[2]).collect();
+    let mut z_moons: Vec<&mut Moon1D> = moons.iter_mut().map(|m| &mut m[2]).collect();
+    let z_cycle = find_cycle(&mut z_moons, &z_original);
+
+    lcm(x_cycle, lcm(y_cycle, z_cycle))
+}
+
+fn find_cycle(moons: &mut Vec<&mut Moon1D>, original_moons: &Vec<Moon1D>) -> usize {
+    let mut moons = moons;
+    let mut counter = 0;
+
+    loop {
+        update_velocities_1d(&mut moons);
+        update_positions_1d(&mut moons);
+
+        counter +=1;
+
+        let mut done = true;
+        for i in 0..original_moons.len() {
+            if moons[i] != &original_moons[i] {
+                done = false;
+                break;
+            }
+        }
+
+        if done {
+            break;
+        }
+    }
+
+    counter
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -70,12 +131,6 @@ impl Moon {
         let (z_pot, z_kin) = self.z.energy();
 
         (x_pot + y_pot + z_pot) * (x_kin + y_kin + z_kin)
-    }
-
-    fn update_velocity(&mut self, other: &Moon) {
-        self.x.update_velocity(other.x);
-        self.y.update_velocity(other.y);
-        self.z.update_velocity(other.z);
     }
 
     fn update_position(&mut self) {
@@ -139,6 +194,12 @@ fn update_velocities_1d(moons: &mut Vec<&mut Moon1D>) {
 }
 
 fn update_positions(moons: &mut Vec<&mut Moon>) {
+    for moon in moons.iter_mut() {
+        moon.update_position();
+    }
+}
+
+fn update_positions_1d(moons: &mut Vec<&mut Moon1D>) {
     for moon in moons.iter_mut() {
         moon.update_position();
     }

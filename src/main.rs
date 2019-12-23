@@ -37,4 +37,5 @@ fn main() {
     println!("11 / 01: {}", aoc_11::aoc_11_01());
     println!("11 / 02: {:#?}", aoc_11::aoc_11_02());
     println!("12 / 01: {}", aoc_12::aoc_12_01());
+    println!("12 / 02: {}", aoc_12::aoc_12_02());
 }
