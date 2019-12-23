@@ -114,7 +114,18 @@ impl Moon1D {
 }
 
 fn update_velocities(moons: &mut Vec<&mut Moon>) {
-    let mut moons_clone: Vec<Moon> = vec![];
+    let mut x_moons: Vec<&mut Moon1D> = moons.iter_mut().map(|m| &mut m.x).collect();
+    update_velocities_1d(&mut x_moons);
+
+    let mut y_moons: Vec<&mut Moon1D> = moons.iter_mut().map(|m| &mut m.y).collect();
+    update_velocities_1d(&mut y_moons);
+
+    let mut z_moons: Vec<&mut Moon1D> = moons.iter_mut().map(|m| &mut m.z).collect();
+    update_velocities_1d(&mut z_moons);
+}
+
+fn update_velocities_1d(moons: &mut Vec<&mut Moon1D>) {
+    let mut moons_clone: Vec<Moon1D> = vec![];
 
     for moon in moons.iter() {
         moons_clone.push(**moon.clone());
@@ -122,7 +133,7 @@ fn update_velocities(moons: &mut Vec<&mut Moon>) {
 
     for moon_update in moons.iter_mut() {
         for moon in moons_clone.iter() {
-            moon_update.update_velocity(&moon);
+            moon_update.update_velocity(*moon);
         }
     }
 }
