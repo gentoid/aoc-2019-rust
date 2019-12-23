@@ -66,25 +66,20 @@ pub fn aoc_12_01() -> isize {
 }
 
 pub fn aoc_12_02() -> usize {
-    let mut moons = prepare_moon1d_input();
+    let moons = prepare_moon1d_input();
 
-    let x_original = moons.clone().iter().map(|m| m[0]).collect();
-    let mut x_moons: Vec<&mut Moon1D> = moons.iter_mut().map(|m| &mut m[0]).collect();
-    let x_cycle = find_cycle(&mut x_moons, &x_original);
-
-    let y_original = moons.clone().iter().map(|m| m[1]).collect();
-    let mut y_moons: Vec<&mut Moon1D> = moons.iter_mut().map(|m| &mut m[1]).collect();
-    let y_cycle = find_cycle(&mut y_moons, &y_original);
-
-    let z_original = moons.clone().iter().map(|m| m[2]).collect();
-    let mut z_moons: Vec<&mut Moon1D> = moons.iter_mut().map(|m| &mut m[2]).collect();
-    let z_cycle = find_cycle(&mut z_moons, &z_original);
+    let x_cycle = find_cycle(&moons, 0);
+    let y_cycle = find_cycle(&moons, 1);
+    let z_cycle = find_cycle(&moons, 2);
 
     lcm(x_cycle, lcm(y_cycle, z_cycle))
 }
 
-fn find_cycle(moons: &mut Vec<&mut Moon1D>, original_moons: &Vec<Moon1D>) -> usize {
-    let mut moons = moons;
+fn find_cycle(moons: &Vec<Vec<Moon1D>>, axis_index: usize) -> usize {
+    let mut cloned = moons.clone();
+    let original: Vec<Moon1D> = cloned.iter().map(|m| m[axis_index]).collect();
+    let mut moons: Vec<&mut Moon1D> = cloned.iter_mut().map(|m| &mut m[axis_index]).collect();
+
     let mut counter = 0;
 
     loop {
@@ -94,8 +89,8 @@ fn find_cycle(moons: &mut Vec<&mut Moon1D>, original_moons: &Vec<Moon1D>) -> usi
         counter +=1;
 
         let mut done = true;
-        for i in 0..original_moons.len() {
-            if moons[i] != &original_moons[i] {
+        for i in 0..original.len() {
+            if moons[i] != &original[i] {
                 done = false;
                 break;
             }
