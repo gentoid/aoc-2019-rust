@@ -235,7 +235,7 @@ mod tests {
 
         let mut expect1 = Moon {
             coord: [5, -3, -1],
-            velocity: [0, -3, 0],
+            velocity: [3, -2, -2],
         };
         let mut expect2 = Moon {
             coord: [1, -2, 2],
