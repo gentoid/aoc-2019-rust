@@ -62,14 +62,15 @@ impl Moon {
         }
     }
     fn energy(&self) -> isize {
-        let mut result = 0;
+        let mut potential = 0;
+        let mut kinetic = 0;
 
         for axis in 0..3 {
-            result += self.coord[axis].abs();
-            result += self.velocity[axis].abs();
+            potential += self.coord[axis].abs();
+            kinetic += self.velocity[axis].abs();
         }
 
-        result
+        potential * kinetic
     }
 
     fn update_velocity(&mut self, other: &Moon) {
