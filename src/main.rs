@@ -10,6 +10,7 @@ mod aoc_09;
 mod aoc_10;
 mod aoc_11;
 mod aoc_12;
+mod aoc_13;
 mod opcode_computer;
 
 fn main() {
@@ -38,4 +39,5 @@ fn main() {
     println!("11 / 02: {:#?}", aoc_11::aoc_11_02());
     println!("12 / 01: {}", aoc_12::aoc_12_01());
     println!("12 / 02: {}", aoc_12::aoc_12_02());
+    println!("13 / 01: {}", aoc_13::aoc_13_01());
 }
