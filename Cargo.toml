@@ -8,4 +8,4 @@ edition = "2018"
 
 [dependencies]
 num-integer = "0.1"
-pancurses = "0.16"
+pancurses = { version = "0.16", features = ["win32"] }
