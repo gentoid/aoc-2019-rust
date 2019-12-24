@@ -86,7 +86,7 @@ fn find_cycle(moons: &Vec<Vec<Moon1D>>, axis_index: usize) -> usize {
         update_velocities_1d(&mut moons);
         update_positions_1d(&mut moons);
 
-        counter +=1;
+        counter += 1;
 
         let mut done = true;
         for i in 0..original.len() {
