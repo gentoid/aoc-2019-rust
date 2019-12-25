@@ -7,7 +7,7 @@ pub struct OpcodeComputer {
     extended_memory: HashMap<usize, isize>,
     pub state: ComputerState,
     input: Vec<isize>,
-    pub output: Vec<isize>,
+    output: Vec<isize>,
     relative_base: isize,
     debug: bool,
     name: Option<String>,
@@ -50,6 +50,13 @@ impl OpcodeComputer {
             true => None,
             false => Some(self.output.remove(0)),
         }
+    }
+
+    pub fn get_all_output(&mut self) -> Vec<isize> {
+        let output = self.output.clone();
+        self.output = vec![];
+
+        output
     }
 
     pub fn halted(&self) -> bool {
