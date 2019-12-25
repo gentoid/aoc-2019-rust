@@ -33,7 +33,7 @@ pub fn aoc_13_02() -> isize {
     let mut computer = OpcodeComputer::new(&program);
 
     let window = initscr();
-    resize_term(40, 50);
+    resize_term(35, 40);
     start_color();
     window.refresh();
     window.keypad(true);
