@@ -161,8 +161,6 @@ impl Game {
         let mut line_index = 0;
         let mut line = String::new();
 
-        lines.push(format!("Score: {}", self.score));
-
         for pixel in self.pixels.iter() {
             let coord = pixel.coord;
 
@@ -176,6 +174,7 @@ impl Game {
         }
 
         lines.push(line.into());
+        lines.push(format!("Score: {}", self.score));
 
         lines
     }
@@ -208,7 +207,7 @@ impl Game {
     }
 
     fn draw_update(&mut self, window: &Window) {
-        window.mvaddstr(0, 7, format!("{}", self.score));
+        window.mvaddstr(self.height as i32, 7, format!("{}", self.score));
 
         for index in self.changes_at.iter() {
             let pixel = self.pixels[*index].clone();
