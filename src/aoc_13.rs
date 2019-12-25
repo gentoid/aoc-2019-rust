@@ -114,8 +114,6 @@ struct Game {
     width: isize,
     height: isize,
     changes_at: Vec<usize>,
-    ball_at: (isize, isize),
-    paddle_at: (isize, isize),
 }
 
 impl Game {
@@ -124,23 +122,11 @@ impl Game {
 
         let mut max_x = 0;
         let mut max_y = 0;
-        let mut ball_at = (0, 0);
-        let mut paddle_at = (0, 0);
 
         for pixel in pixels.iter() {
             let (x, y) = pixel.coord;
             max_x = max(max_x, x);
             max_y = max(max_y, y);
-
-            match pixel.tile_type {
-                TileType::Ball => {
-                    ball_at = pixel.coord;
-                }
-                TileType::Paddle => {
-                    paddle_at = pixel.coord;
-                }
-                _ => (),
-            }
         }
 
         let width = max_x + 1;
@@ -151,8 +137,6 @@ impl Game {
             width,
             height: max_y + 1,
             changes_at: vec![],
-            ball_at,
-            paddle_at,
         }
     }
 
@@ -187,22 +171,6 @@ impl Game {
             let index = coord_to_index(self.width, &pixel.coord);
             self.changes_at.push(index);
             self.pixels[index] = (*pixel).clone();
-
-            match pixel.tile_type {
-                TileType::Ball => {
-                    let old_index = coord_to_index(self.width, &self.ball_at);
-                    self.pixels[old_index].tile_type = TileType::Empty;
-                    self.changes_at.push(old_index);
-                    self.ball_at = pixel.coord;
-                }
-                TileType::Paddle => {
-                    let old_index = coord_to_index(self.width, &self.paddle_at);
-                    self.pixels[old_index].tile_type = TileType::Empty;
-                    self.changes_at.push(old_index);
-                    self.paddle_at = pixel.coord;
-                }
-                _ => (),
-            }
         }
     }
 
