@@ -175,7 +175,7 @@ impl Game {
     }
 
     fn draw_update(&mut self, window: &Window) {
-        window.mvaddstr(self.height as i32, 7, format!("{}", self.score));
+        window.mvaddstr(self.height as i32, 7, format!("{}          ", self.score));
 
         for index in self.changes_at.iter() {
             let pixel = self.pixels[*index].clone();
