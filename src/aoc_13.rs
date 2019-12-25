@@ -1,7 +1,9 @@
 use {
     crate::opcode_computer::OpcodeComputer,
-    pancurses::{cbreak, curs_set, endwin, initscr, noecho, resize_term, start_color, Input},
-    std::{fs, thread::sleep, time::Duration},
+    pancurses::{
+        cbreak, curs_set, endwin, initscr, noecho, resize_term, start_color, Input, Window,
+    },
+    std::{cmp::max, fs, thread::sleep, time::Duration},
 };
 
 fn read_and_parse() -> Vec<isize> {
@@ -18,7 +20,7 @@ pub fn aoc_13_01() -> usize {
     let mut computer = OpcodeComputer::new(&program);
     computer.run();
 
-    let game = parse_output(&computer.get_all_output());
+    let game = Game::from_output(&computer.get_all_output());
     game.pixels
         .iter()
         .filter(|v| v.tile_type == TileType::Block)
@@ -26,7 +28,8 @@ pub fn aoc_13_01() -> usize {
 }
 
 pub fn aoc_13_02() -> isize {
-    let program = read_and_parse();
+    let mut program = read_and_parse();
+    program[0] = 2;
     let mut computer = OpcodeComputer::new(&program);
 
     let window = initscr();
@@ -38,24 +41,14 @@ pub fn aoc_13_02() -> isize {
     noecho();
     curs_set(0);
 
-    let mut score = 0;
+    computer.run();
+    let mut game = Game::from_output(&computer.get_all_output());
+
+    for line in game.prepare_output() {
+        window.printw(format!("{}\n", line));
+    }
+
     loop {
-        computer.run();
-
-        let game = parse_output(&computer.get_all_output());
-        let lines = game.prepare_output();
-
-        for line in lines {
-            window.printw(format!("{}\n", line));
-        }
-
-        if computer.halted() {
-            score = game.score;
-            break;
-        }
-
-        sleep(Duration::from_millis(1000));
-
         match window.getch() {
             Some(Input::KeyLeft) => {
                 computer.add_input(&-1);
@@ -70,16 +63,26 @@ pub fn aoc_13_02() -> isize {
                 computer.add_input(&0);
             }
         }
+
+        computer.run();
+
+        game.update_state(&computer.get_all_output());
+        game.draw_update(&window);
+
+        if computer.halted() {
+            break;
+        }
     }
+
     window.getch();
     endwin();
 
-    score
+    game.score
 }
 
-fn parse_output(seq: &Vec<isize>) -> Game {
+fn parse_output(seq: &Vec<isize>) -> (Vec<Pixel>, Option<isize>) {
     let mut pixels = vec![];
-    let mut score = 0;
+    let mut score = None;
 
     let mut index = 0;
     while index + 2 < seq.len() {
@@ -87,7 +90,7 @@ fn parse_output(seq: &Vec<isize>) -> Game {
         let y = seq[index + 1];
 
         if x == -1 && y == 0 {
-            score = seq[index + 2];
+            score = Some(seq[index + 2]);
         } else {
             let tile_id = seq[index + 2];
             pixels.push(Pixel {
@@ -98,15 +101,61 @@ fn parse_output(seq: &Vec<isize>) -> Game {
 
         index += 3;
     }
-    Game { pixels, score }
+    (pixels, score)
+}
+
+fn coord_to_index(width: isize, (x, y): &(isize, isize)) -> usize {
+    (x + y * width) as usize
 }
 
 struct Game {
     pixels: Vec<Pixel>,
     score: isize,
+    width: isize,
+    height: isize,
+    changes_at: Vec<usize>,
+    ball_at: (isize, isize),
+    paddle_at: (isize, isize),
 }
 
 impl Game {
+    fn from_output(output: &Vec<isize>) -> Self {
+        let (pixels, score) = parse_output(&output);
+
+        let mut max_x = 0;
+        let mut max_y = 0;
+        let mut ball_at = (0, 0);
+        let mut paddle_at = (0, 0);
+
+        for pixel in pixels.iter() {
+            let (x, y) = pixel.coord;
+            max_x = max(max_x, x);
+            max_y = max(max_y, y);
+
+            match pixel.tile_type {
+                TileType::Ball => {
+                    ball_at = pixel.coord;
+                }
+                TileType::Paddle => {
+                    paddle_at = pixel.coord;
+                }
+                _ => (),
+            }
+        }
+
+        let width = max_x + 1;
+
+        Self {
+            pixels,
+            score: score.unwrap_or(0),
+            width,
+            height: max_y + 1,
+            changes_at: vec![],
+            ball_at,
+            paddle_at,
+        }
+    }
+
     fn prepare_output(&self) -> Vec<String> {
         let mut lines: Vec<String> = vec![];
         let mut line_index = 0;
@@ -130,8 +179,60 @@ impl Game {
 
         lines
     }
+
+    fn update_state(&mut self, output: &Vec<isize>) {
+        let diff = GameDiff::from_output(&output);
+        diff.score.map(|score| self.score = score);
+
+        for pixel in diff.pixels.iter() {
+            let index = coord_to_index(self.width, &pixel.coord);
+            self.changes_at.push(index);
+            self.pixels[index] = (*pixel).clone();
+
+            match pixel.tile_type {
+                TileType::Ball => {
+                    let old_index = coord_to_index(self.width, &self.ball_at);
+                    self.pixels[old_index].tile_type = TileType::Empty;
+                    self.changes_at.push(old_index);
+                    self.ball_at = pixel.coord;
+                }
+                TileType::Paddle => {
+                    let old_index = coord_to_index(self.width, &self.paddle_at);
+                    self.pixels[old_index].tile_type = TileType::Empty;
+                    self.changes_at.push(old_index);
+                    self.paddle_at = pixel.coord;
+                }
+                _ => (),
+            }
+        }
+    }
+
+    fn draw_update(&mut self, window: &Window) {
+        window.mvaddstr(0, 7, format!("{}", self.score));
+
+        for index in self.changes_at.iter() {
+            let pixel = self.pixels[*index].clone();
+            let (x, y) = pixel.coord;
+            window.mvaddch(y as i32, x as i32, pixel.tile_type.to_char());
+        }
+
+        self.changes_at = vec![];
+    }
 }
 
+struct GameDiff {
+    pixels: Vec<Pixel>,
+    score: Option<isize>,
+}
+
+impl GameDiff {
+    fn from_output(output: &Vec<isize>) -> Self {
+        let (pixels, score) = parse_output(&output);
+        Self { pixels, score }
+    }
+}
+
+#[derive(Clone)]
 struct Pixel {
     coord: Coord,
     tile_type: TileType,
@@ -139,7 +240,7 @@ struct Pixel {
 
 type Coord = (isize, isize);
 
-#[derive(PartialEq)]
+#[derive(Clone, PartialEq)]
 enum TileType {
     Empty,
     Wall,
