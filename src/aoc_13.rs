@@ -164,10 +164,10 @@ impl Game {
     }
 
     fn update_state(&mut self, output: &Vec<isize>) {
-        let diff = GameDiff::from_output(&output);
-        diff.score.map(|score| self.score = score);
+        let (pixels, score) = parse_output(&output);
+        score.map(|score| self.score = score);
 
-        for pixel in diff.pixels.iter() {
+        for pixel in pixels.iter() {
             let index = coord_to_index(self.width, &pixel.coord);
             self.changes_at.push(index);
             self.pixels[index] = (*pixel).clone();
@@ -184,18 +184,6 @@ impl Game {
         }
 
         self.changes_at = vec![];
-    }
-}
-
-struct GameDiff {
-    pixels: Vec<Pixel>,
-    score: Option<isize>,
-}
-
-impl GameDiff {
-    fn from_output(output: &Vec<isize>) -> Self {
-        let (pixels, score) = parse_output(&output);
-        Self { pixels, score }
     }
 }
 
