@@ -17,23 +17,45 @@ pub fn aoc_13_01() -> usize {
     let mut computer = OpcodeComputer::new(&program);
     computer.run();
 
-    let screen: HashMap<Coord, TileType> = parse_output(&computer.output);
-    screen.values().filter(|v| **v == TileType::Block).count()
+    let game = parse_output(&computer.output);
+    game.pixels
+        .iter()
+        .filter(|v| v.tile_type == TileType::Block)
+        .count()
 }
 
-fn parse_output(seq: &Vec<isize>) -> HashMap<Coord, TileType> {
-    let mut res = HashMap::new();
+fn parse_output(seq: &Vec<isize>) -> Game {
+    let mut pixels = vec![];
+    let mut score = 0;
 
     let mut index = 0;
     while index + 2 < seq.len() {
         let x = seq[index];
         let y = seq[index + 1];
-        let tile_id = seq[index + 2];
-        res.insert((x, y), TileType::from_type_id(tile_id));
+
+        if x == -1 && y == 0 {
+            score = seq[index + 2];
+        } else {
+            let tile_id = seq[index + 2];
+            pixels.push(Pixel {
+                coord: (x, y),
+                tile_type: TileType::from_type_id(tile_id),
+            });
+        }
 
         index += 3;
     }
-    res
+    Game { pixels, score }
+}
+
+struct Game {
+    pixels: Vec<Pixel>,
+    score: isize,
+}
+
+struct Pixel {
+    coord: Coord,
+    tile_type: TileType,
 }
 
 type Coord = (isize, isize);
