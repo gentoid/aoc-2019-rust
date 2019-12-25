@@ -3,7 +3,7 @@ use {
     pancurses::{
         cbreak, curs_set, endwin, initscr, noecho, resize_term, start_color, Input, Window,
     },
-    std::{cmp::max, fs, thread::sleep, time::Duration},
+    std::{cmp::max, fs},
 };
 
 fn read_and_parse() -> Vec<isize> {
