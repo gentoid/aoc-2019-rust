@@ -225,8 +225,8 @@ impl TileType {
             Empty => ' ',
             Wall => '@',
             Block => '#',
-            Paddle => '=',
-            Ball => 'o',
+            Paddle => '\u{25A0}',
+            Ball => '\u{25CB}',
         }
     }
 }
