@@ -62,7 +62,7 @@ fn parse_input(lines: &Vec<String>) -> Receipt {
         let parts: Vec<&str> = line.split("=>").collect();
         let left_part = parts[0];
         let right_part = parts[1];
-        let receipt_line = ReceiptLine{
+        let receipt_line = ReceiptLine {
             ingredients: parse_multiple_component(left_part),
             result: parse_single_component(right_part),
         };
@@ -145,30 +145,48 @@ mod tests {
         .collect();
 
         let mut expected: Receipt = HashMap::new();
-        expected.insert("A".into(), ReceiptLine{
-            result: Component::new(10, "A"),
-            ingredients: Component::from_vec(vec![(10, "ORE")]),
-        });
-        expected.insert("B".into(), ReceiptLine{
-            result: Component::new(1, "B"),
-            ingredients: Component::from_vec(vec![(1, "ORE")]),
-        });
-        expected.insert("C".into(), ReceiptLine{
-            result: Component::new(1, "C"),
-            ingredients: Component::from_vec(vec![(7, "A"), (1, "B")]),
-        });
-        expected.insert("D".into(), ReceiptLine{
-            result: Component::new(1, "D"),
-            ingredients: Component::from_vec(vec![(7, "A"), (1, "C")]),
-        });
-        expected.insert("E".into(), ReceiptLine{
-            result: Component::new(1, "E"),
-            ingredients: Component::from_vec(vec![(7, "A"), (1, "D")]),
-        });
-        expected.insert("FUEL".into(), ReceiptLine{
-            result: Component::new(1, "FUEL"),
-            ingredients: Component::from_vec(vec![(7, "A"), (1, "E")]),
-        });
+        expected.insert(
+            "A".into(),
+            ReceiptLine {
+                result: Component::new(10, "A"),
+                ingredients: Component::from_vec(vec![(10, "ORE")]),
+            },
+        );
+        expected.insert(
+            "B".into(),
+            ReceiptLine {
+                result: Component::new(1, "B"),
+                ingredients: Component::from_vec(vec![(1, "ORE")]),
+            },
+        );
+        expected.insert(
+            "C".into(),
+            ReceiptLine {
+                result: Component::new(1, "C"),
+                ingredients: Component::from_vec(vec![(7, "A"), (1, "B")]),
+            },
+        );
+        expected.insert(
+            "D".into(),
+            ReceiptLine {
+                result: Component::new(1, "D"),
+                ingredients: Component::from_vec(vec![(7, "A"), (1, "C")]),
+            },
+        );
+        expected.insert(
+            "E".into(),
+            ReceiptLine {
+                result: Component::new(1, "E"),
+                ingredients: Component::from_vec(vec![(7, "A"), (1, "D")]),
+            },
+        );
+        expected.insert(
+            "FUEL".into(),
+            ReceiptLine {
+                result: Component::new(1, "FUEL"),
+                ingredients: Component::from_vec(vec![(7, "A"), (1, "E")]),
+            },
+        );
 
         let parsed = parse_input(&input);
 
