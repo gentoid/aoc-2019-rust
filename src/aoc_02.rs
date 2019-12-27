@@ -1,4 +1,4 @@
-use {crate::{opcode_computer::OpcodeComputer, read_input::read_intcode_program}};
+use crate::{opcode_computer::OpcodeComputer, read_input::read_intcode_program};
 
 pub fn aoc_02_01() -> isize {
     init_with_noun_verb(12, 2).run()

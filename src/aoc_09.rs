@@ -1,4 +1,4 @@
-use {crate::{opcode_computer::OpcodeComputer, read_input::read_intcode_program}};
+use crate::{opcode_computer::OpcodeComputer, read_input::read_intcode_program};
 
 pub fn aoc_09_01() -> isize {
     let mut computer = OpcodeComputer::new(&read_intcode_program(9));

@@ -1,6 +1,4 @@
-use {
-    crate::read_input::read_lines,
-};
+use crate::read_input::read_lines;
 
 pub fn aoc_01_01() -> i32 {
     read_and_parse().iter().map(calculate_fuel).sum()

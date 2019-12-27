@@ -1,6 +1,4 @@
-use {std::{
-    collections::HashMap,
-}, crate::read_input::read_lines};
+use {crate::read_input::read_lines, std::collections::HashMap};
 
 type Cache = HashMap<String, (u32, Option<String>)>;
 

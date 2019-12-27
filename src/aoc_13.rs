@@ -3,7 +3,7 @@ use {
     pancurses::{
         cbreak, curs_set, endwin, initscr, noecho, resize_term, start_color, Input, Window,
     },
-    std::{cmp::max},
+    std::cmp::max,
 };
 
 pub fn aoc_13_01() -> usize {

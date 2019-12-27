@@ -1,11 +1,11 @@
 use {
+    crate::read_input::read_lines,
     num_integer::gcd,
     std::{
-        collections::{HashSet},
-        f64::consts::{PI},
+        collections::HashSet,
+        f64::consts::PI,
         ops::{Div, Mul},
     },
-    crate::read_input::read_lines,
 };
 
 pub fn aoc_10_01() -> (Coord, usize) {

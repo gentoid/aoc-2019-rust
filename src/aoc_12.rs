@@ -1,7 +1,4 @@
-use {
-    num_integer::lcm,
-    crate::read_input::read_lines,
-};
+use {crate::read_input::read_lines, num_integer::lcm};
 
 fn parse_line(line: &str) -> Vec<isize> {
     line.to_owned()

@@ -1,6 +1,6 @@
 use {
     crate::{opcode_computer::OpcodeComputer, read_input::read_intcode_program},
-    std::{collections::HashMap},
+    std::collections::HashMap,
 };
 
 pub fn aoc_11_01() -> usize {

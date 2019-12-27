@@ -128,9 +128,7 @@ impl Segment {
 }
 
 fn read_and_parse() -> Vec<Vec<Diff>> {
-    read_lines(3).iter()
-        .map(parse_line)
-        .collect()
+    read_lines(3).iter().map(parse_line).collect()
 }
 
 fn parse_line(line: &String) -> Vec<Diff> {
