@@ -1,5 +1,8 @@
 use std::collections::HashMap;
 
+static ORE: &str = "ORE";
+static FUEL: &str = "FUEL";
+
 pub fn aoc_14_01() -> usize {
     0
 }
@@ -20,6 +23,15 @@ struct Component {
     name: String,
 }
 
+impl Default for Component {
+    fn default() -> Self {
+        Self {
+            quantity: 1,
+            name: FUEL.into(),
+        }
+    }
+}
+
 impl Component {
     fn new(quantity: usize, name: &str) -> Self {
         Self {
@@ -36,6 +48,10 @@ impl Component {
                 name: name.into(),
             })
             .collect()
+    }
+
+    fn with_available(&self, available: usize) -> Self {
+        Self::new(self.quantity - available, self.name.as_ref())
     }
 }
 
@@ -56,8 +72,36 @@ fn parse_input(lines: &Vec<String>) -> Receipt {
     result
 }
 
-fn solve_receipt(receipt: &Receipt, component_name: &str, resources: &mut Resources) {
-    // TODO
+fn calculate_receipt(receipt: &Receipt, resources: &mut Resources, produce: &Component) -> usize {
+    if produce.name == ORE {
+        return produce.quantity;
+    }
+
+    let mut ore_required = 0;
+
+    if !resources.contains_key(&produce.name) {
+        resources.insert(produce.name.clone(), 0);
+    }
+
+    let available = resources.get(&produce.name).unwrap();
+    if *available >= produce.quantity {
+        resources
+            .get_mut(&produce.name)
+            .map(|quantity| *quantity -= produce.quantity);
+
+        return 0;
+    } else {
+        let receipt_line = receipt.get(&produce.name).unwrap();
+
+        for component in receipt_line.ingredients.iter() {
+            ore_required += calculate_receipt(receipt, resources, component);
+            resources
+                .get_mut(&produce.name)
+                .map(|quantity| *quantity += produce.quantity);
+        }
+    }
+
+    ore_required
 }
 
 fn parse_multiple_component(line: &str) -> Vec<Component> {
@@ -132,6 +176,43 @@ mod tests {
     }
 
     #[test]
+    fn calculates_one_line() {
+        let input = [
+            "8 ORE => 1 FUEL",
+        ]
+        .iter()
+        .map(|l| String::from(*l))
+        .collect();
+
+        let expected = 8;
+        let mut resources = HashMap::new();
+
+        let calculated =
+            calculate_receipt(&parse_input(&input), &mut resources, &Component::default());
+
+        assert_eq!(expected, calculated);
+    }
+
+    #[test]
+    fn calculates_two_lines() {
+        let input = [
+            "8 A => 1 FUEL",
+            "2 ORE => 1 A"
+        ]
+        .iter()
+        .map(|l| String::from(*l))
+        .collect();
+
+        let expected = 16;
+        let mut resources = HashMap::new();
+
+        let calculated =
+            calculate_receipt(&parse_input(&input), &mut resources, &Component::default());
+
+        assert_eq!(expected, calculated);
+    }
+
+    #[test]
     fn solves_small_example() {
         let input = [
             "10 ORE => 10 A",
@@ -146,12 +227,11 @@ mod tests {
         .collect();
 
         let expected = 31;
-
         let mut resources = HashMap::new();
 
-        solve_receipt(&parse_input(&input), "FUEL", &mut resources);
+        let calculated =
+            calculate_receipt(&parse_input(&input), &mut resources, &Component::default());
 
-        assert_eq!(expected, *resources.get("ORE").unwrap_or(&0));
-
+        assert_eq!(expected, calculated);
     }
 }
