@@ -36,10 +36,6 @@ impl OpcodeComputer {
         }
     }
 
-    pub fn set_name(&mut self, name: &str) {
-        self.name = Some(name.into());
-    }
-
     pub fn add_input(&mut self, input: &isize) -> &mut Self {
         self.input.push(input.clone());
         self
@@ -76,10 +72,6 @@ impl OpcodeComputer {
         }
 
         self.instructions[0]
-    }
-
-    pub fn debug(&mut self) {
-        self.debug = true;
     }
 
     fn perform_more(&self) -> bool {

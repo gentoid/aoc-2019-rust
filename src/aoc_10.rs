@@ -245,7 +245,7 @@ fn find_200th_vaporized_asteroid(input: &Vec<&str>, station: &Coord) -> Coord {
     let nth_asteroid = 200;
 
     let mut vaporized = HashSet::new();
-    let mut seen = HashSet::new();
+    let mut seen;
 
     loop {
         seen = seen_asteroids(&map, &station);
