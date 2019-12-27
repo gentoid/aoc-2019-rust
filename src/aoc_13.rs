@@ -1,22 +1,13 @@
 use {
-    crate::opcode_computer::OpcodeComputer,
+    crate::{opcode_computer::OpcodeComputer, read_input::read_intcode_program},
     pancurses::{
         cbreak, curs_set, endwin, initscr, noecho, resize_term, start_color, Input, Window,
     },
-    std::{cmp::max, fs},
+    std::{cmp::max},
 };
 
-fn read_and_parse() -> Vec<isize> {
-    let content = fs::read_to_string("inputs/input-13.txt").unwrap();
-    content
-        .trim()
-        .split(",")
-        .map(|string| isize::from_str_radix(string.as_ref(), 10).unwrap())
-        .collect()
-}
-
 pub fn aoc_13_01() -> usize {
-    let program = read_and_parse();
+    let program = read_intcode_program(13);
     let mut computer = OpcodeComputer::new(&program);
     computer.run();
 
@@ -28,7 +19,7 @@ pub fn aoc_13_01() -> usize {
 }
 
 pub fn aoc_13_02() -> isize {
-    let mut program = read_and_parse();
+    let mut program = read_intcode_program(13);
     program[0] = 2;
     let mut computer = OpcodeComputer::new(&program);
 

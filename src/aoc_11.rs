@@ -1,19 +1,10 @@
 use {
-    crate::opcode_computer::OpcodeComputer,
-    std::{collections::HashMap, fs},
+    crate::{opcode_computer::OpcodeComputer, read_input::read_intcode_program},
+    std::{collections::HashMap},
 };
 
-fn read_and_parse() -> Vec<isize> {
-    let content = fs::read_to_string("inputs/input-11.txt").unwrap();
-    content
-        .trim()
-        .split(",")
-        .map(|string| isize::from_str_radix(string.as_ref(), 10).unwrap())
-        .collect()
-}
-
 pub fn aoc_11_01() -> usize {
-    let program = read_and_parse();
+    let program = read_intcode_program(11);
     let mut robot = PaintingRobot::new(&program, &(0, 0), Color::Black);
     while !robot.done() {
         robot.next();
@@ -22,7 +13,7 @@ pub fn aoc_11_01() -> usize {
 }
 
 pub fn aoc_11_02() -> Vec<String> {
-    let program = read_and_parse();
+    let program = read_intcode_program(11);
     let mut robot = PaintingRobot::new(&program, &(0, 0), Color::White);
     while !robot.done() {
         robot.next();

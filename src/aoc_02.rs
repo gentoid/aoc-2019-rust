@@ -1,13 +1,4 @@
-use {crate::opcode_computer::OpcodeComputer, std::fs};
-
-fn read_and_parse() -> Vec<isize> {
-    let content = fs::read_to_string("inputs/input-02.txt").unwrap();
-    content
-        .trim()
-        .split(",")
-        .map(|string| isize::from_str_radix(string.as_ref(), 10).unwrap())
-        .collect()
-}
+use {crate::{opcode_computer::OpcodeComputer, read_input::read_intcode_program}};
 
 pub fn aoc_02_01() -> isize {
     init_with_noun_verb(12, 2).run()
@@ -28,7 +19,7 @@ pub fn aoc_02_02() -> isize {
 }
 
 fn init_with_noun_verb(noun: isize, verb: isize) -> OpcodeComputer {
-    let mut memory = read_and_parse();
+    let mut memory = read_intcode_program(2);
     memory[1] = noun;
     memory[2] = verb;
 

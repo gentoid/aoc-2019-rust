@@ -1,22 +1,13 @@
-use {crate::opcode_computer::OpcodeComputer, std::fs};
-
-fn read_and_parse() -> Vec<isize> {
-    let content = fs::read_to_string("inputs/input-07.txt").unwrap();
-    content
-        .trim()
-        .split(",")
-        .map(|string| isize::from_str_radix(string.as_ref(), 10).unwrap())
-        .collect()
-}
+use {crate::{opcode_computer::OpcodeComputer, read_input::read_intcode_program}};
 
 pub fn aoc_07_01() -> isize {
-    let program = read_and_parse();
+    let program = read_intcode_program(7);
     let (signal, _) = find_max_signal(&program, &vec![0, 1, 2, 3, 4]);
 
     signal
 }
 pub fn aoc_07_02() -> isize {
-    let program = read_and_parse();
+    let program = read_intcode_program(7);
     let (signal, _) = find_max_signal(&program, &vec![5, 6, 7, 8, 9]);
 
     signal
