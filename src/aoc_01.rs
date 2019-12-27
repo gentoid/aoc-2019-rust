@@ -1,6 +1,5 @@
-use std::{
-    fs::File,
-    io::{BufRead, BufReader},
+use {
+    crate::read_input::read_lines,
 };
 
 pub fn aoc_01_01() -> i32 {
@@ -12,12 +11,11 @@ pub fn aoc_01_02() -> i32 {
 }
 
 fn read_and_parse() -> Vec<i32> {
-    let file = File::open("inputs/input-01.txt").unwrap();
-    let reader = BufReader::new(file);
+    let lines = read_lines(1);
     let mut result = vec![];
 
-    for line in reader.lines() {
-        result.push(i32::from_str_radix(line.unwrap().as_ref(), 10).expect("Cannot parse LINE"));
+    for line in lines {
+        result.push(i32::from_str_radix(line.as_ref(), 10).expect("Cannot parse LINE"));
     }
 
     result

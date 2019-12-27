@@ -1,7 +1,4 @@
-use std::{
-    fs::File,
-    io::{BufRead, BufReader},
-};
+use crate::read_input::read_lines;
 
 struct Diff {
     x: i32,
@@ -131,16 +128,12 @@ impl Segment {
 }
 
 fn read_and_parse() -> Vec<Vec<Diff>> {
-    let file = File::open("inputs/input-03.txt").unwrap();
-    let reader = BufReader::new(file);
-
-    reader
-        .lines()
-        .map(|line| parse_line(line.unwrap()))
+    read_lines(3).iter()
+        .map(parse_line)
         .collect()
 }
 
-fn parse_line(line: String) -> Vec<Diff> {
+fn parse_line(line: &String) -> Vec<Diff> {
     line.split(",").map(Diff::from_vector).collect()
 }
 

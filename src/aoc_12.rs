@@ -1,17 +1,7 @@
 use {
     num_integer::lcm,
-    std::{
-        fs::File,
-        io::{BufRead, BufReader},
-    },
+    crate::read_input::read_lines,
 };
-
-fn read_lines() -> Vec<String> {
-    let file = File::open("inputs/input-12.txt").unwrap();
-    let reader = BufReader::new(file);
-
-    reader.lines().map(|l| l.unwrap()).collect()
-}
 
 fn parse_line(line: &str) -> Vec<isize> {
     line.to_owned()
@@ -27,7 +17,7 @@ fn parse_line(line: &str) -> Vec<isize> {
 }
 
 fn prepare_input() -> Vec<Moon> {
-    read_lines()
+    read_lines(12)
         .iter()
         .map(|l| {
             let line = parse_line(l.as_ref());
@@ -37,7 +27,7 @@ fn prepare_input() -> Vec<Moon> {
 }
 
 fn prepare_moon1d_input() -> Vec<Vec<Moon1D>> {
-    read_lines()
+    read_lines(12)
         .iter()
         .map(|l| {
             let line = parse_line(l.as_ref());

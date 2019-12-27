@@ -1,29 +1,21 @@
 use {
     num_integer::gcd,
     std::{
-        collections::{HashMap, HashSet},
-        f64::consts::{FRAC_PI_2, PI},
-        fs::File,
-        io::{BufRead, BufReader},
+        collections::{HashSet},
+        f64::consts::{PI},
         ops::{Div, Mul},
     },
+    crate::read_input::read_lines,
 };
 
-fn read_lines() -> Vec<String> {
-    let file = File::open("inputs/input-10.txt").unwrap();
-    let reader = BufReader::new(file);
-
-    reader.lines().map(|l| l.unwrap()).collect()
-}
-
 pub fn aoc_10_01() -> (Coord, usize) {
-    let lines = read_lines();
+    let lines = read_lines(10);
     let input = lines.iter().map(String::as_ref).collect();
     find_best_asteroid(&input)
 }
 
 pub fn aoc_10_02() -> Coord {
-    let lines = read_lines();
+    let lines = read_lines(10);
     let input = lines.iter().map(String::as_ref).collect();
     let station = Coord::new(23, 19);
     find_200th_vaporized_asteroid(&input, &station)
@@ -286,7 +278,7 @@ fn sort_clockwise(asteroids: &HashSet<Coord>, station: &Coord) -> Vec<Coord> {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use {super::*, std::f64::consts::FRAC_PI_2};
 
     #[test]
     fn finds_the_best_asteroid_on_tiny_map() {

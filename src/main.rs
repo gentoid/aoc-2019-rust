@@ -12,6 +12,7 @@ mod aoc_11;
 mod aoc_12;
 mod aoc_13;
 mod opcode_computer;
+mod read_input;
 
 fn main() {
     println!("01 / 01: {}", aoc_01::aoc_01_01());

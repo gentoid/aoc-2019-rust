@@ -1,17 +1,8 @@
-use std::{
+use {std::{
     collections::HashMap,
-    fs::File,
-    io::{BufRead, BufReader},
-};
+}, crate::read_input::read_lines};
 
 type Cache = HashMap<String, (u32, Option<String>)>;
-
-fn read_lines() -> Vec<String> {
-    let file = File::open("inputs/input-06.txt").unwrap();
-    let reader = BufReader::new(file);
-
-    reader.lines().map(|l| l.unwrap()).collect()
-}
 
 pub fn aoc_06_01() -> u32 {
     let cache = prepare_tree_cache();
@@ -43,7 +34,7 @@ pub fn aoc_06_02() -> u32 {
 fn prepare_tree_cache() -> HashMap<String, (u32, Option<String>)> {
     let mut relations: Vec<(String, String)> = vec![];
     let mut cache: HashMap<String, (u32, Option<String>)> = HashMap::new();
-    for relation in read_lines() {
+    for relation in read_lines(6) {
         let (name1, name2) = parse(&relation);
         relations.push((name1.clone(), name2.clone()));
     }
