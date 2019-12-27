@@ -11,6 +11,7 @@ mod aoc_10;
 mod aoc_11;
 mod aoc_12;
 mod aoc_13;
+mod aoc_14;
 mod opcode_computer;
 mod read_input;
 
