@@ -52,7 +52,7 @@ impl Component {
     }
 }
 
-fn parse_input(lines: &Vec<String>) -> Receipt {
+fn parse_input(lines: &[String]) -> Receipt {
     let mut result = HashMap::new();
 
     for line in lines {
