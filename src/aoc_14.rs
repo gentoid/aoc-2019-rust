@@ -126,9 +126,7 @@ mod tests {
     use super::*;
 
     fn str_to_string(vector: &[&str]) -> Vec<String> {
-        vector.iter()
-        .map(|l| String::from(*l))
-        .collect()
+        vector.iter().map(|l| String::from(*l)).collect()
     }
 
     fn smapp_example() -> Vec<String> {
