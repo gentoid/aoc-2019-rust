@@ -83,23 +83,33 @@ fn calculate_receipt(receipt: &Receipt, resources: &mut Resources, produce: &Com
         resources.insert(produce.name.clone(), 0);
     }
 
-    let available = resources.get(&produce.name).unwrap();
-    if *available >= produce.quantity {
-        resources
-            .get_mut(&produce.name)
-            .map(|quantity| *quantity -= produce.quantity);
-
-        return 0;
-    } else {
-        let receipt_line = receipt.get(&produce.name).unwrap();
-
-        for component in receipt_line.ingredients.iter() {
-            ore_required += calculate_receipt(receipt, resources, component);
+    loop {
+        let available = resources.get(&produce.name).unwrap();
+        if *available >= produce.quantity {
             resources
                 .get_mut(&produce.name)
-                .map(|quantity| *quantity += produce.quantity);
+                .map(|quantity| *quantity -= produce.quantity);
+
+            break;
+        } else {
+            ore_required += produce_resource(receipt, resources, produce);
         }
     }
+
+    ore_required
+}
+
+fn produce_resource(receipt: &Receipt, resources: &mut Resources, component: &Component) -> usize {
+    let mut ore_required = 0;
+
+    let receipt_line = receipt.get(&component.name).unwrap();
+    for component in receipt_line.ingredients.iter() {
+        ore_required += calculate_receipt(receipt, resources, component);
+    }
+
+    resources
+        .get_mut(&component.name)
+        .map(|quantity| *quantity += receipt_line.result.quantity);
 
     ore_required
 }
