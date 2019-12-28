@@ -8,6 +8,11 @@ pub fn aoc_14_01() -> usize {
     calculate_receipt(&receipt, &mut HashMap::new(), &Component::default())
 }
 
+pub fn aoc_14_02() -> usize {
+    let receipt = parse_input(&read_lines(14));
+    calculated_fuel_from_1_trln_ores(&receipt) - 1
+}
+
 #[derive(Debug, PartialEq)]
 struct ReceiptLine {
     ingredients: Vec<Component>,
@@ -67,6 +72,29 @@ fn parse_input(lines: &[String]) -> Receipt {
     }
 
     result
+}
+
+fn calculated_fuel_from_1_trln_ores(receipt: &Receipt) -> usize {
+    let ores = 1_000_000_000_000.0;
+    let per_fuel = calculate_receipt_with_fractions(&receipt, FUEL);
+
+    (ores / per_fuel).floor() as usize
+}
+
+fn calculate_receipt_with_fractions(receipt: &Receipt, resource_name: &str) -> f64 {
+    if resource_name == ORE {
+        return 1.0;
+    }
+
+    let mut ore_required = 0.0;
+
+    let receipt_line = receipt.get(resource_name.into()).unwrap();
+    for ingredient in receipt_line.ingredients.iter() {
+        ore_required += ingredient.quantity as f64 / receipt_line.result.quantity as f64
+            * calculate_receipt_with_fractions(receipt, &ingredient.name);
+    }
+
+    ore_required
 }
 
 fn calculate_receipt(receipt: &Receipt, resources: &mut Resources, produce: &Component) -> usize {
