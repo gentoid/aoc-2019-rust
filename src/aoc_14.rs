@@ -200,6 +200,10 @@ mod tests {
         calculate_receipt(&parse_input(input), &mut resources, &Component::default())
     }
 
+    fn calculate_fuel(input: &[String]) -> usize {
+        calculated_fuel_from_1_trln_ores(&parse_input(input))
+    }
+
     #[test]
     fn parses_single_component() {
         let expected = Component::new(3, "Fuel");
@@ -294,5 +298,20 @@ mod tests {
     #[test]
     fn solves_3rd_larger_example() {
         assert_eq!(2210736, calculate(&third_larger_example()));
+    }
+
+    #[test]
+    fn calculates_fuel_1st_larger_example() {
+        assert_eq!(82892753, calculate_fuel(&first_larger_example()));
+    }
+
+    #[test]
+    fn calculates_fuel_2nd_larger_example() {
+        assert_eq!(5586022, calculate_fuel(&second_larger_example()));
+    }
+
+    #[test]
+    fn calculates_fuel_3rd_larger_example() {
+        assert_eq!(460664, calculate_fuel(&third_larger_example()));
     }
 }
