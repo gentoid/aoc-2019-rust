@@ -131,6 +131,17 @@ mod tests {
         .collect()
     }
 
+    fn smapp_example() -> Vec<String> {
+        str_to_string(&vec![
+            "10 ORE => 10 A",
+            "1 ORE => 1 B",
+            "7 A, 1 B => 1 C",
+            "7 A, 1 C => 1 D",
+            "7 A, 1 D => 1 E",
+            "7 A, 1 E => 1 FUEL",
+        ])
+    }
+
     fn first_larger_example() -> Vec<String> {
         str_to_string(&vec![
             "157 ORE => 5 NZVS",
@@ -184,6 +195,11 @@ mod tests {
         ])
     }
 
+    fn calculate(input: &[String]) -> usize {
+        let mut resources = HashMap::new();
+        calculate_receipt(&parse_input(input), &mut resources, &Component::default())
+    }
+
     #[test]
     fn parses_single_component() {
         let expected = Component::new(3, "Fuel");
@@ -198,17 +214,7 @@ mod tests {
 
     #[test]
     fn parses_input_to_receipt() {
-        let input = [
-            "10 ORE => 10 A",
-            "1 ORE => 1 B",
-            "7 A, 1 B => 1 C",
-            "7 A, 1 C => 1 D",
-            "7 A, 1 D => 1 E",
-            "7 A, 1 E => 1 FUEL",
-        ]
-        .iter()
-        .map(|l| String::from(*l))
-        .collect();
+        let input = smapp_example();
 
         let mut expected: Receipt = HashMap::new();
         expected.insert(
@@ -261,95 +267,32 @@ mod tests {
 
     #[test]
     fn calculates_one_line() {
-        let input = ["8 ORE => 1 FUEL"]
-            .iter()
-            .map(|l| String::from(*l))
-            .collect();
-
-        let expected = 8;
-        let mut resources = HashMap::new();
-
-        let calculated =
-            calculate_receipt(&parse_input(&input), &mut resources, &Component::default());
-
-        assert_eq!(expected, calculated);
+        assert_eq!(8, calculate(&str_to_string(&["8 ORE => 1 FUEL"])));
     }
 
     #[test]
     fn calculates_two_lines() {
-        let input = ["8 A => 1 FUEL", "2 ORE => 1 A"]
-            .iter()
-            .map(|l| String::from(*l))
-            .collect();
-
-        let expected = 16;
-        let mut resources = HashMap::new();
-
-        let calculated =
-            calculate_receipt(&parse_input(&input), &mut resources, &Component::default());
-
-        assert_eq!(expected, calculated);
+        let input = str_to_string(&["8 A => 1 FUEL", "2 ORE => 1 A"]);
+        assert_eq!(16, calculate(&input));
     }
 
     #[test]
     fn solves_small_example() {
-        let input = [
-            "10 ORE => 10 A",
-            "1 ORE => 1 B",
-            "7 A, 1 B => 1 C",
-            "7 A, 1 C => 1 D",
-            "7 A, 1 D => 1 E",
-            "7 A, 1 E => 1 FUEL",
-        ]
-        .iter()
-        .map(|l| String::from(*l))
-        .collect();
-
-        let expected = 31;
-        let mut resources = HashMap::new();
-
-        let calculated =
-            calculate_receipt(&parse_input(&input), &mut resources, &Component::default());
-
-        assert_eq!(expected, calculated);
+        assert_eq!(31, calculate(&smapp_example()));
     }
 
     #[test]
     fn solves_1st_larger_example() {
-        let input = first_larger_example();
-
-        let expected = 13312;
-        let mut resources = HashMap::new();
-
-        let calculated =
-            calculate_receipt(&parse_input(&input), &mut resources, &Component::default());
-
-        assert_eq!(expected, calculated);
+        assert_eq!(13312, calculate(&first_larger_example()));
     }
 
     #[test]
     fn solves_2nd_larger_example() {
-        let input = second_larger_example();
-
-        let expected = 180697;
-        let mut resources = HashMap::new();
-
-        let calculated =
-            calculate_receipt(&parse_input(&input), &mut resources, &Component::default());
-
-        assert_eq!(expected, calculated);
+        assert_eq!(180697, calculate(&second_larger_example()));
     }
 
     #[test]
     fn solves_3rd_larger_example() {
-        let input = third_larger_example();
-
-        let expected = 2210736;
-        let mut resources = HashMap::new();
-
-        let calculated =
-            calculate_receipt(&parse_input(&input), &mut resources, &Component::default());
-
-        assert_eq!(expected, calculated);
+        assert_eq!(2210736, calculate(&third_larger_example()));
     }
 }
