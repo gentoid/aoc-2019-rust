@@ -205,12 +205,10 @@ mod tests {
 
     #[test]
     fn calculates_one_line() {
-        let input = [
-            "8 ORE => 1 FUEL",
-        ]
-        .iter()
-        .map(|l| String::from(*l))
-        .collect();
+        let input = ["8 ORE => 1 FUEL"]
+            .iter()
+            .map(|l| String::from(*l))
+            .collect();
 
         let expected = 8;
         let mut resources = HashMap::new();
@@ -223,13 +221,10 @@ mod tests {
 
     #[test]
     fn calculates_two_lines() {
-        let input = [
-            "8 A => 1 FUEL",
-            "2 ORE => 1 A"
-        ]
-        .iter()
-        .map(|l| String::from(*l))
-        .collect();
+        let input = ["8 A => 1 FUEL", "2 ORE => 1 A"]
+            .iter()
+            .map(|l| String::from(*l))
+            .collect();
 
         let expected = 16;
         let mut resources = HashMap::new();
