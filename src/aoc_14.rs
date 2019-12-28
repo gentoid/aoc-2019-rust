@@ -50,10 +50,6 @@ impl Component {
             })
             .collect()
     }
-
-    fn with_available(&self, available: usize) -> Self {
-        Self::new(self.quantity - available, self.name.as_ref())
-    }
 }
 
 fn parse_input(lines: &Vec<String>) -> Receipt {
