@@ -1,10 +1,11 @@
-use std::collections::HashMap;
+use {crate::read_input::read_lines, std::collections::HashMap};
 
 static ORE: &str = "ORE";
 static FUEL: &str = "FUEL";
 
 pub fn aoc_14_01() -> usize {
-    0
+    let receipt = parse_input(&read_lines(14));
+    calculate_receipt(&receipt, &mut HashMap::new(), &Component::default())
 }
 
 #[derive(Debug, PartialEq)]
